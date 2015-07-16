@@ -9,6 +9,7 @@ TripCard=บัตรรายงานค่าใช้จ่าย
 AddTrip=สร้างรายงานค่าใช้จ่าย
 ListOfTrips=รายชื่อของรายงานค่าใช้จ่าย
 ListOfFees=รายการค่าใช้จ่าย
+ShowTrip=Show expense report
 NewTrip=รายงานค่าใช้จ่ายใหม่
 CompanyVisited=บริษัท / มูลนิธิเข้าเยี่ยมชม
 Kilometers=กิโลเมตร
@@ -76,6 +77,7 @@ BROUILLONNER=เปิดใหม่
 SendToValid=ส่งความเห็นชอบ
 ModifyInfoGen=แก้ไข
 ValidateAndSubmit=ตรวจสอบและส่งเพื่อขออนุมัติ
+ValidatedWaitingApproval=การตรวจสอบ (รอการอนุมัติ)
 
 NOT_VALIDATOR=คุณยังไม่ได้รับอนุญาตให้อนุมัติรายงานค่าใช้จ่ายนี้
 NOT_AUTHOR=คุณไม่ได้เป็นผู้เขียนรายงานค่าใช้จ่ายนี้ การดำเนินงานที่ยกเลิก

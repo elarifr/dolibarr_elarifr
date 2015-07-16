@@ -1,6 +1,6 @@
 <?php
 /* Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
- * Copyright (C) 2013-2014 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
+ * Copyright (C) 2013-2015 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
  * Copyright (C) 2014-2015 Ari Elbaz (elarifr)	<github@accedinfo.com>
  * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
@@ -17,7 +17,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
 /**
@@ -29,26 +28,42 @@
 require '../../main.inc.php';
 
 // Class
-require_once DOL_DOCUMENT_ROOT.'/accountancy/class/html.formventilation.class.php';
-require_once DOL_DOCUMENT_ROOT.'/accountancy/class/accountingaccount.class.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
-
+require_once DOL_DOCUMENT_ROOT.'/accountancy/class/html.formventilation.class.php';
+require_once DOL_DOCUMENT_ROOT.'/accountancy/class/accountingaccount.class.php';
 
 // Langs
 $langs->load("compta");
 $langs->load("bills");
+$langs->load("other");
 $langs->load("main");
 $langs->load("accountancy");
 
 $action = GETPOST('action');
 $codeventil = GETPOST('codeventil', 'array');
 $mesCasesCochees = GETPOST('mesCasesCochees', 'array');
+$search_ref     = GETPOST('search_ref','alpha');
+$search_label   = GETPOST('search_label','alpha');
+$search_desc    = GETPOST('search_desc','alpha');
 
 $sortfield = GETPOST('sortfield','alpha');
 $sortorder = GETPOST('sortorder','alpha');
+//Should move to top with all GETPOST
+$page = GETPOST('page');
+if ($page < 0) $page = 0;
 
-// TODO : remove comment
+if (! empty($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION)) {
+	$limit = $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION;
+} else if ($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION <= 0) {
+	$limit = $conf->liste_limit;
+} else {
+	$limit = $conf->liste_limit;
+}
+$offset = $limit * $page;
+//End Should move to top with all GETPOST
+
+// TODO : remove comment 
 //elarifr we can not use only
 //$sql .= " ORDER BY l.rowid";
 // f.datef will order like FA08 FA09 FA10 FA05 FA06 FA07 FA04...
@@ -56,7 +71,6 @@ $sortorder = GETPOST('sortorder','alpha');
 // l.rowid when an invoice is edited rowid are added at end of table & facturedet.rowid are not ordered
 //if (! $sortfield) $sortfield="l.rowid";
 if (! $sortfield) $sortfield="f.datef, f.facnumber, l.rowid";
-
 //if (! $sortorder) $sortorder="DESC";
 if (! $sortorder) {
 	if ($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_TODO > 0) {
@@ -80,6 +94,13 @@ $accounting = new AccountingAccount($db);
 $aarowid_s = $accounting->fetch('', ACCOUNTING_SERVICE_SOLD_ACCOUNT);
 $aarowid_p = $accounting->fetch('', ACCOUNTING_PRODUCT_SOLD_ACCOUNT);
 
+// Purge search criteria
+if (GETPOST("button_removefilter_x") || GETPOST("button_removefilter")) // Both test are required to be compatible with all browsers
+{
+    $search_ref='';
+    $search_label='';
+    $search_desc='';
+}
 /*
  * View
  */
@@ -176,6 +197,16 @@ $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accountingaccount as aa ON p.accountan
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accounting_system as accsys ON accsys.pcg_version = aa.fk_pcg_version";
 $sql .= " WHERE f.fk_statut > 0 AND fk_code_ventilation <= 0";
 $sql .= " AND (accsys.rowid='" . $conf->global->CHARTOFACCOUNTS . "' OR p.accountancy_code_sell IS NULL OR p.accountancy_code_sell ='')";
+// Add search filter like
+if (strlen(trim($search_ref))) {
+	$sql .= " AND (p.ref like '%" . $search_ref . "%')";
+}
+if (strlen(trim($search_label))) {
+	$sql .= " AND (p.label like '%" . $search_label . "%')";
+}
+if (strlen(trim($search_desc))) {
+	$sql .= " AND (l.description like '%" . $search_desc . "%')";
+}
 if (! empty($conf->multicompany->enabled)) {
 	$sql .= " AND f.entity IN (" . getEntity("facture", 1) . ")";
 }
@@ -198,30 +229,40 @@ if ($result) {
 	// TODO : print_barre_liste always use $conf->liste_limit and do not care about custom limit in list...
 	print_barre_liste($langs->trans("InvoiceLines"), $page, $_SERVER["PHP_SELF"], "", $sortfield, $sortorder, '', $num_lines);
 
-	print '<td align="left"><b>' . $langs->trans("DescVentilTodoCustomer") . '</b></td>&nbsp;';
-	print_liste_field_titre($langs->trans("Date"), $_SERVER["PHP_SELF"],"f.datef","",$param,'',$sortfield,$sortorder);	
-	print '&nbsp;&nbsp;';
-	print_liste_field_titre($langs->trans("RowId"), $_SERVER["PHP_SELF"],"l.rowid","",$param,'',$sortfield,$sortorder);	
-	
-	print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post"><br />';
+	print '<br><b>' . $langs->trans("DescVentilTodoCustomer") . '</b></br>';
+
+	print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post">' . "\n";
 	print '<input type="hidden" name="action" value="ventil">';
-	
+
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
 	print_liste_field_titre($langs->trans("Invoice"), $_SERVER["PHP_SELF"],"f.facnumber","",$param,'',$sortfield,$sortorder);
-//	print_liste_field_titre($langs->trans("Date"), $_SERVER["PHP_SELF"],"f.datef","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Ref"), $_SERVER["PHP_SELF"],"p.ref","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Label"), $_SERVER["PHP_SELF"],"p.label","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Description"), $_SERVER["PHP_SELF"],"l.description","",$param,'',$sortfield,$sortorder);
-//	do we need to reorder by amount / account.... ????
-	print '<td align="right">' . $langs->trans("Amount") . '</td>';
-	print '<td align="right">' . $langs->trans("AccountAccounting") . '</td>';
-	print '<td align="center">' . $langs->trans("IntoAccount") . '</td>';
+    print_liste_field_titre($langs->trans("Amount"),'','','','','align="right"');
+	print_liste_field_titre($langs->trans("AccountAccounting"),'','','','','align="center"');
+	print_liste_field_titre($langs->trans("IntoAccount"),'','','','','align="center"');
 	print_liste_field_titre('');
-	print '<td align="center">' . $langs->trans("Ventilate") . '<br><label id="select-all">'.$langs->trans('All').'</label>/<label id="unselect-all">'.$langs->trans('None').'</label>'.'</td>';
-//	do we need to add search filter ?
-
+	print_liste_field_titre($langs->trans("Ventilate") . '<br><label id="select-all">'.$langs->trans('All').'</label>/<label id="unselect-all">'.$langs->trans('None').'</label>','','','','','align="center"');
 	print '</tr>';
+
+//	We add search filter
+/*	But Hit Enter will validate ventilation....
+	print '<tr class="liste_titre">';
+	print '<td class="liste_titre" >&nbsp;</td>';
+	print '<td class="liste_titre"><input type="text" class="flat" size="10" name="search_ref" value="' . $search_ref . '"></td>';
+	print '<td class="liste_titre"><input type="text" class="flat" size="20" name="search_label" value="' . $search_label . '"></td>';
+	print '<td class="liste_titre"><input type="text" class="flat" size="30" name="search_desc" value="' . $search_desc . '"></td>';
+
+	print '<td class="liste_titre" colspan="3">&nbsp;</td>';
+	print '<td align="right" colspan="2" class="liste_titre">';
+	print '<input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'search.png','','',1).'" name="button_search" value="'.dol_escape_htmltag($langs->trans("Search")).'" title="'.dol_escape_htmltag($langs->trans("Search")).'">';
+	print '&nbsp;';
+	print '<input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'searchclear.png','','',1).'" name="button_removefilter" value="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'" title="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'">';
+	print '</td>';
+	print '</tr>';
+*/
 	$facture_static = new Facture($db);
 	$product_static = new Product($db);
 	$form = new Form($db);
@@ -230,7 +271,6 @@ if ($result) {
 	while ( $i < min($num_lines, $limit) ) {
 		$objp = $db->fetch_object($result);
 		$var = ! $var;
-
 
 		// product_type: 0 = service ? 1 = product
 		// C'est le contraire dans les base !!!!!!  IT IS INVERTED IN LLX_PRODUCT & LLX_FACTUREDET
@@ -280,12 +320,11 @@ if ($result) {
 
 		print "<tr $bc[$var]>";
 
-		// Ref facture
+		// Ref Invoice
 		$facture_static->ref = $objp->facnumber;
 		$facture_static->id = $objp->facid;
 		print '<td>' . $facture_static->getNomUrl(1) . '</td>';
-//		print '<td> </td>';
-		// Ref produit
+		// Ref Customer Invoice
 		$product_static->ref = $objp->product_ref;
 		$product_static->id = $objp->product_id;
 		$product_static->type = $objp->type;
@@ -295,15 +334,18 @@ if ($result) {
 		else
 			print '&nbsp;';
 		print '</td>';
+
 		print '<td style="' . $code_sell_p_l_differ . '">' . dol_trunc($objp->product_label, 24) . '</td>';
-		//TODO: we shoul set a user defined value to adjust user square / wide screen size
-		$trunclengh = defined('ACCOUNTING_LENGTH_DESCRIPTION') ? ACCOUNTING_LENGTH_DESCRIPTION : 32;
-		print '<td style="' . $code_sell_p_l_differ . '">' . nl2br(dol_trunc($objp->description, $trunclengh)) . '</td>';
+		//TODO: we should set a user defined value to adjust user square / wide screen size
+		$trunclength = defined('ACCOUNTING_LENGTH_DESCRIPTION') ? ACCOUNTING_LENGTH_DESCRIPTION : 32;
+		print '<td style="' . $code_sell_p_l_differ . '">' . nl2br(dol_trunc($objp->description, $trunclength)) . '</td>';
+
 		print '<td align="right">';
 		print price($objp->total_ht);
 		print '</td>';
+
 		print '<td align="center" style="' . $code_sell_p_notset . '">';
-		//if not same kind of product_type stored in product & facturedt we display both account and let user choose
+		// if not same kind of product_type stored in product & facturedet we display both account and let user choose
 		if ($objp->code_sell_l == $objp->code_sell_p) {
 			print $objp->code_sell_l;
 		} else {
@@ -313,19 +355,19 @@ if ($result) {
 
 		// Colonne choix du compte
 		print '<td align="center">';
-		//TODO: we shoul set a user defined value to adjust user square / wide screen size
-		//$trunclenghform = defined('ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT') ? ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT : 50;
+		// TODO: we should set a user defined value to adjust user square / wide screen size
+		// $trunclengthform = defined('ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT') ? ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT : 50;
 		print $formventilation->select_account($objp->aarowid_suggest, 'codeventil[]', 1);
 		print '</td>';
-		//elarifr display rowid as in customer/lines.php
+
 		print '<td align="center">' . $objp->rowid . '</td>';
 		// Colonne choix ligne a ventiler
 		print '<td align="center">';
+		//TODO checked only if account exist in product, if only suggested do not check, user must validate 
 		print '<input type="checkbox" name="mesCasesCochees[]" value="' . $objp->rowid . "_" . $i . '"' . ($objp->aarowid_suggest ? "checked" : "") . '/>';
 		print '</td>';
 //debug
 //print '</tr><tr><td colspan=6>Product: p.type='. $objp->type .' - p.code_sell='. $objp->code_sell .'  --- Check code_sell_product=' . $objp->code_sell_p .'  ---Check facturedet l.type_l='. $objp->type_l .' - code_sell_lines=' . $objp->code_sell_l . '  -- aarowid_suggest=' . $objp->aarowid_suggest.'</td>';
-
 		print '</tr>';
 		$i ++;
 	}
@@ -336,7 +378,6 @@ if ($result) {
 } else {
 	print $db->error();
 }
-
 
 llxFooter();
 $db->close();

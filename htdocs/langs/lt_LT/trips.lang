@@ -9,6 +9,7 @@ TripCard=Išlaidų ataskaitos kortelė
 AddTrip=Sukurti išlaidų ataskaitą
 ListOfTrips=List of expense reports
 ListOfFees=Įmokų sąrašas
+ShowTrip=Show expense report
 NewTrip=Nauja išlaidų ataskaita
 CompanyVisited=Aplankyta įmonė/organizacija
 Kilometers=Kilometrų
@@ -76,6 +77,7 @@ BROUILLONNER=Atidaryti iš naujo
 SendToValid=Sent on approval
 ModifyInfoGen=Redaguoti
 ValidateAndSubmit=Įvertinti ir pateikti tvirtinimui
+ValidatedWaitingApproval=Validated (waiting for approval)
 
 NOT_VALIDATOR=Jums neleidžiama patvirtinti šią išlaidų ataskaitą
 NOT_AUTHOR=Jūs nesate šios išlaidų ataskaitos autorius. Operacija nutraukta.

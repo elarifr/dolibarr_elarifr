@@ -507,6 +507,8 @@ if ($action == 'create')
                 print '<input type="hidden" name="entrepot_id" value="'.GETPOST('entrepot_id','int').'">';
             }
 
+            dol_fiche_head('');
+
             print '<table class="border" width="100%">';
 
             // Ref
@@ -542,7 +544,7 @@ if ($action == 'create')
             print '<td colspan="3">';
             //print dol_print_date($object->date_livraison,"day");	// date_livraison come from order and will be stored into date_delivery planed.
             $date_delivery = ($date_delivery?$date_delivery:$object->date_livraison); // $date_delivery comes from GETPOST
-            print $form->select_date($date_delivery?$date_delivery:-1,'date_delivery',1,1);
+            print $form->select_date($date_delivery?$date_delivery:-1,'date_delivery',1,1,1);
             print "</td>\n";
             print '</tr>';
 
@@ -617,6 +619,8 @@ if ($action == 'create')
             $reshook=$hookmanager->executeHooks('formObjectOptions',$parameters,$expe,$action);    // Note that $action and $object may have been modified by hook
 
             print "</table>";
+
+            dol_fiche_end();
 
             /*
              * Lignes de commandes
@@ -838,7 +842,7 @@ if ($action == 'create')
 				}
 				else
 				{
-					print '<td></td><td></td></tr>';
+					print '<td></td><td></td></tr>';	// end line and start a new one for lot/serial
 					$subj=0;
 					print '<input name="idl'.$indiceAsked.'" type="hidden" value="'.$line->id.'">';
 					foreach ($product->stock_warehouse[$warehouse_id]->detail_batch as $dbatch)
@@ -855,6 +859,7 @@ if ($action == 'create')
 						$staticwarehouse->fetch($warehouse_id);
 						print $staticwarehouse->getNomUrl(0).' / ';
 
+						print '<!-- Show details of lot -->';
 						print '<input name="batchl'.$indiceAsked.'_'.$subj.'" type="hidden" value="'.$dbatch->id.'">';
 						print $langs->trans("DetailBatchFormat", $dbatch->batch, dol_print_date($dbatch->eatby,"day"), dol_print_date($dbatch->sellby,"day"), $dbatch->qty);
 						if ($defaultqty<=0) {
@@ -1059,7 +1064,7 @@ else if ($id || $ref)
 			print '<form name="setdate_livraison" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'" method="post">';
 			print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 			print '<input type="hidden" name="action" value="setdate_livraison">';
-			$form->select_date($object->date_delivery?$object->date_delivery:-1,'liv_',1,1,'',"setdate_livraison");
+			print $form->select_date($object->date_delivery?$object->date_delivery:-1,'liv_',1,1,'',"setdate_livraison",1,0,1);
 			print '<input type="submit" class="button" value="'.$langs->trans('Modify').'">';
 			print '</form>';
 		}
@@ -1073,8 +1078,8 @@ else if ($id || $ref)
 		// Weight
 		print '<tr><td>'.$form->editfieldkey("Weight",'trueWeight',$object->trueWeight,$object,$user->rights->expedition->creer).'</td><td colspan="3">';
 
-		if($action=='edittrueWeight') {
-
+		if ($action=='edittrueWeight')
+		{
 			print '<form name="settrueweight" action="'.$_SERVER["PHP_SELF"].'" method="post">';
 			print '<input name="action" value="settrueWeight" type="hidden">';
 			print '<input name="id" value="'.$object->id.'" type="hidden">';
@@ -1086,7 +1091,8 @@ else if ($id || $ref)
 			print '</form>';
 
 		}
-		else {
+		else
+		{
 			print $object->trueWeight;
 			print ($object->trueWeight && $object->weight_units!='')?' '.measuring_units_string($object->weight_units,"weight"):'';
 		}
@@ -1107,8 +1113,8 @@ else if ($id || $ref)
 
 		// Height
 		print '<tr><td>'.$form->editfieldkey("Height",'trueHeight',$object->trueHeight,$object,$user->rights->expedition->creer).'</td><td colspan="3">';
-		if($action=='edittrueHeight') {
-
+		if($action=='edittrueHeight')
+		{
 			print '<form name="settrueHeight" action="'.$_SERVER["PHP_SELF"].'" method="post">';
 			print '<input name="action" value="settrueHeight" type="hidden">';
 			print '<input name="id" value="'.$object->id.'" type="hidden">';
@@ -1120,7 +1126,8 @@ else if ($id || $ref)
 			print '</form>';
 
 		}
-		else {
+		else
+		{
 			print $object->trueHeight;
 			print ($object->trueHeight && $object->height_units!='')?' '.measuring_units_string($object->height_units,"size"):'';
 
@@ -1370,8 +1377,10 @@ else if ($id || $ref)
 				else if (count($lines[$i]->details_entrepot) > 1)
 				{
 					$detail = '';
-					foreach ($lines[$i]->details_entrepot as $detail_entrepot) {
-						if ($detail_entrepot->entrepot_id > 0) {
+					foreach ($lines[$i]->details_entrepot as $detail_entrepot)
+					{
+						if ($detail_entrepot->entrepot_id > 0)
+						{
 							$entrepot = new Entrepot($db);
 							$entrepot->fetch($detail_entrepot->entrepot_id);
 							$detail.= $langs->trans("DetailWarehouseFormat",$entrepot->libelle,$detail_entrepot->qty_shipped).'<br/>';
@@ -1389,7 +1398,8 @@ else if ($id || $ref)
 				{
 					print '<td>';
 					$detail = '';
-					foreach ($lines[$i]->detail_batch as $dbatch) {
+					foreach ($lines[$i]->detail_batch as $dbatch)
+					{
 						$detail.= $langs->trans("DetailBatchFormat",$dbatch->batch,dol_print_date($dbatch->eatby,"day"),dol_print_date($dbatch->sellby,"day"),$dbatch->dluo_qty).'<br/>';
 					}
 					print $form->textwithtooltip($langs->trans("DetailBatchNumber"),$detail);
@@ -1413,7 +1423,7 @@ else if ($id || $ref)
 
 	/*
 	 *    Boutons actions
-	*/
+	 */
 
 	if (($user->societe_id == 0) && ($action!='presend'))
 	{
@@ -1487,7 +1497,7 @@ else if ($id || $ref)
 
 	/*
 	 * Documents generated
-	*/
+	 */
 	if ($action != 'presend')
 	{
 		print '<table width="100%"><tr><td width="50%" valign="top">';
@@ -1521,7 +1531,7 @@ else if ($id || $ref)
 
 	/*
 	 * Action presend
-	*/
+	 */
 	//Select mail models is same action as presend
 	if (GETPOST('modelselected')) {
 		$action = 'presend';
@@ -1561,8 +1571,11 @@ else if ($id || $ref)
 			$file=$fileparams['fullname'];
 		}
 
+		print '<div class="clearboth"></div>';
 		print '<br>';
-		print_titre($langs->trans('SendShippingByEMail'));
+		print_fiche_titre($langs->trans('SendShippingByEMail'));
+
+		dol_fiche_head('');
 
 		// Cree l'objet formulaire mail
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
@@ -1638,7 +1651,7 @@ else if ($id || $ref)
 		// Show form
 		print $formmail->get_form();
 
-		print '<br>';
+		dol_fiche_end();
 	}
 
 	if ($action != 'presend' && ! empty($origin) && $object->$origin->id)

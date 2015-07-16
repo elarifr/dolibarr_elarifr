@@ -3,8 +3,8 @@
  * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2013-2015 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
  * Copyright (C) 2014-2015 Ari Elbaz (elarifr)	<github@accedinfo.com>
- * Copyright (C) 2014      Marcos García		<marcosgdf@gmail.com>
- * Copyright (C) 2014      Juanjo Menent		<jmenent@2byte.es>
+ * Copyright (C) 2014      Marcos García        <marcosgdf@gmail.com>
+ * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2015      Jean-François Ferry	<jfefe@aternatik.fr>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@ $action = GETPOST('action', 'alpha');
 // Other parameters ACCOUNTING_*
 $list = array (
 		'ACCOUNTING_LIMIT_LIST_VENTILATION',
-		'ACCOUNTING_LENGTH_DESCRIPTION',				// adjust size displayed for lines description for dol_trunc
+        'ACCOUNTING_LENGTH_DESCRIPTION',				// adjust size displayed for lines description for dol_trunc
 		'ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT',		// adjust size displayed for select account description for dol_trunc
 		'ACCOUNTING_LENGTH_GACCOUNT',
 		'ACCOUNTING_LENGTH_AACCOUNT',
@@ -288,7 +288,6 @@ if (! empty($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_DONE)) {
 	print '</a></td>';
 }
 print '</tr>';
-
 
 print "</table>\n";
 

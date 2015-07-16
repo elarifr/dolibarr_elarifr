@@ -100,7 +100,7 @@ ErrorProdIdAlreadyExist=%s è già assegnato
 ErrorFailedToSendPassword=Impossibile inviare la password
 ErrorFailedToLoadRSSFile=Impossibile ottenere feed RSS. Se i messaggi di errore non forniscono informazioni sufficienti, prova ad ativare il debug con MAIN_SIMPLEXMLLOAD_DEBUG.
 ErrorPasswordDiffers=Le password immesse sono diverse, digitarle nuovamente.
-ErrorForbidden=Accesso vietato.<br/>Si tenta di accedere a una pagina o a un'area senza autenticazione o con diritti insufficienti
+ErrorForbidden=Access denied.<br>You try to access to a page, area or feature of a disabled module or without being in an authenticated session or that is not allowed to your user.
 ErrorForbidden2=L'autorizzazione all'accesso per questi dati può essere impostata dall'amministratore di Dolibarr tramite il menu %s - %s.
 ErrorForbidden3=Sembra che Dolibarr non venga utilizzato tramite una sessione autenticata. Dai un'occhiata alla documentazione di installazione Dolibarr per sapere come gestire le autenticazioni (htaccess, mod_auth o altri...).
 ErrorNoImagickReadimage=La funzione Imagick_readimage non è stata trovato nel PHP. L'anteprima non è disponibile. Gli amministratori possono disattivare questa scheda dal menu <b>Impostazioni - Schermo</b>
@@ -170,6 +170,7 @@ ErrorGlobalVariableUpdater4=SOAP client failed with error '%s'
 ErrorGlobalVariableUpdater5=No global variable selected
 ErrorFieldMustBeANumeric=Il campo <b>%s</b> deve essere un valore numerico
 ErrorFieldMustBeAnInteger=Il campo <b>%s</b> deve essere un numero intero
+ErrorMandatoryParametersNotProvided=Mandatory parameter(s) not provided
 
 # Warnings
 WarningMandatorySetupNotComplete=I parametri di configurazione obbligatori non sono ancora stati definiti
@@ -190,3 +191,4 @@ WarningNotRelevant=Operazione irrilevante per questo dataset
 WarningFeatureDisabledWithDisplayOptimizedForBlindNoJs=Funzione disabilitata quando le impostazioni di visualizzazione sono ottimizzate per persone non vedenti o browser testuali.
 WarningPaymentDateLowerThanInvoiceDate=La scadenza del pagamento (%s) risulta antecedente alla data di fatturazione (%s) per la fattura %s
 WarningTooManyDataPleaseUseMoreFilters=Troppi risultati. Per favore applica filtri più restrittivi
+WarningSomeLinesWithNullHourlyRate=Some times were recorded by users when their hourly rate was not defined. A value of 0 was used but this may result in wrong valuation of time spent.

@@ -9,6 +9,7 @@ TripCard=Skjema for reiseregninger
 AddTrip=Opprett reiseregning
 ListOfTrips=Liste over reiseregninger
 ListOfFees=Oversikt over avgifter
+ShowTrip=Vis utgiftsrapport
 NewTrip=Ny reiseregning
 CompanyVisited=Firma/organiasjon besøkt
 Kilometers=Kilometer
@@ -76,6 +77,7 @@ BROUILLONNER=Gjenåpne
 SendToValid=Sendt til godkjenning
 ModifyInfoGen=Endre
 ValidateAndSubmit=Valider og send til godkjenning
+ValidatedWaitingApproval=Validert (venter på godkjenning)
 
 NOT_VALIDATOR=Du har ikke tillatelse til å godkjenne denne reiseregningen
 NOT_AUTHOR=Reiseregningener ikke opprettet av deg. Operasjonen avbrutt.

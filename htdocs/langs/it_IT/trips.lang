@@ -9,6 +9,7 @@ TripCard=Scheda nota spese
 AddTrip=Crea nota spese
 ListOfTrips=List of expense reports
 ListOfFees=Elenco delle tariffe
+ShowTrip=Show expense report
 NewTrip=Nuova nota spese
 CompanyVisited=Società/Fondazione visitata
 Kilometers=Kilometri
@@ -76,6 +77,7 @@ BROUILLONNER=Riapri
 SendToValid=Sent on approval
 ModifyInfoGen=Modifica
 ValidateAndSubmit=Convalida e proponi per l'approvazione
+ValidatedWaitingApproval=Validated (waiting for approval)
 
 NOT_VALIDATOR=Non sei autorizzato ad approvare questa nota spese
 NOT_AUTHOR=Non sei l'autore di questa nota spese. Operazione annullata.

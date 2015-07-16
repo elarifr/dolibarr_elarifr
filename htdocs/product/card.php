@@ -878,7 +878,7 @@ else
         }
 
         // Description (used in invoice, propal...)
-        print '<tr><td valign="top">'.$langs->trans("Description").'</td><td colspan="3">';
+        print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td colspan="3">';
 
         $doleditor = new DolEditor('desc', GETPOST('desc'), '', 160, 'dolibarr_notes', '', false, true, $conf->global->FCKEDITOR_ENABLE_PRODUCTDESC, 4, 80);
         $doleditor->Create();
@@ -886,7 +886,7 @@ else
         print "</td></tr>";
 
         // Public URL
-        print '<tr><td valign="top">'.$langs->trans("PublicUrl").'</td><td colspan="3">';
+        print '<tr><td>'.$langs->trans("PublicUrl").'</td><td colspan="3">';
 		print '<input type="text" name="url" size="90" value="'.GETPOST('url').'">';
         print '</td></tr>';
 
@@ -952,6 +952,15 @@ else
             print '</td></tr>';
         }
 
+        // Units
+	    if($conf->global->PRODUCT_USE_UNITS)
+	    {
+		    print '<tr><td>'.$langs->trans('DefaultUnitToShow').'</td>';
+		    print '<td colspan="3">';
+		    print $form->selectUnits('','units');
+		    print '</td></tr>';
+	    }
+
         // Custom code
         if (empty($conf->global->PRODUCT_DISABLE_CUSTOM_INFO))
         {
@@ -972,7 +981,7 @@ else
         }
 
         // Note (private, no output on invoices, propales...)
-        print '<tr><td valign="top">'.$langs->trans("NoteNotVisibleOnBill").'</td><td colspan="3">';
+        print '<tr><td class="tdtop">'.$langs->trans("NoteNotVisibleOnBill").'</td><td colspan="3">';
 
         // We use dolibarr_details as type of DolEditor here, because we must not accept images as description is included into PDF and not accepted by TCPDF.
         $doleditor = new DolEditor('note', GETPOST('note'), '', 140, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_PRODUCTDESC, 8, 70);
@@ -987,15 +996,6 @@ else
 			print $form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, '', 0, '100%');
 			print "</td></tr>";
 		}
-
-	    // Units
-	    if($conf->global->PRODUCT_USE_UNITS)
-	    {
-		    print '<tr><td>'.$langs->trans('Unit').'</td>';
-		    print '<td colspan="3">';
-		    print $form->selectUnits("units");
-		    print '</td></tr>';
-	    }
 
         print '</table>';
 
@@ -1164,7 +1164,7 @@ else
 	        }
 
             // Description (used in invoice, propal...)
-            print '<tr><td valign="top">'.$langs->trans("Description").'</td><td colspan="3">';
+            print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td colspan="3">';
 
             // We use dolibarr_details as type of DolEditor here, because we must not accept images as description is included into PDF and not accepted by TCPDF.
             $doleditor = new DolEditor('desc', $object->description, '', 160, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_PRODUCTDESC, 4, 80);
@@ -1174,7 +1174,7 @@ else
             print "\n";
 
             // Public Url
-            print '<tr><td valign="top">'.$langs->trans("PublicUrl").'</td><td colspan="3">';
+            print '<tr><td>'.$langs->trans("PublicUrl").'</td><td colspan="3">';
 			print '<input type="text" name="url" size="80" value="'.$object->url.'">';
             print '</td></tr>';
 
@@ -1223,7 +1223,7 @@ else
                 print '</td></tr>';
             }
             else
-            {
+			{
                 // Weight
                 print '<tr><td>'.$langs->trans("Weight").'</td><td colspan="3">';
                 print '<input name="weight" size="5" value="'.$object->weight.'"> ';
@@ -1245,6 +1245,14 @@ else
                 print $formproduct->select_measuring_units("volume_units", "volume", $object->volume_units);
                 print '</td></tr>';
             }
+        	// Units
+	        if($conf->global->PRODUCT_USE_UNITS)
+	        {
+		        print '<tr><td>'.$langs->trans('DefaultUnitToShow').'</td>';
+		        print '<td colspan="3">';
+		        print $form->selectUnits($object->fk_unit, 'units');
+		        print '</td></tr>';
+	        }
 
 	        // Custom code
     	    if (empty($conf->global->PRODUCT_DISABLE_CUSTOM_INFO))
@@ -1266,7 +1274,7 @@ else
             }
 
             // Note
-            print '<tr><td valign="top">'.$langs->trans("NoteNotVisibleOnBill").'</td><td colspan="3">';
+            print '<tr><td class="tdtop">'.$langs->trans("NoteNotVisibleOnBill").'</td><td colspan="3">';
 
             $doleditor = new DolEditor('note', $object->note, '', 140, 'dolibarr_notes', '', false, true, $conf->global->FCKEDITOR_ENABLE_PRODUCTDESC, 4, 80);
             $doleditor->Create();
@@ -1275,7 +1283,7 @@ else
 
 			if($conf->categorie->enabled) {
 				// Categories
-				print '<tr><td valign="top">'.$langs->trans("Categories").'</td><td colspan="3">';
+				print '<tr><td class="tdtop">'.$langs->trans("Categories").'</td><td colspan="3">';
 				$cate_arbo = $form->select_all_categories(Categorie::TYPE_PRODUCT, '', 'parent', 64, 0, 1);
 				$c = new Categorie($db);
 				$cats = $c->containing($object->id,Categorie::TYPE_PRODUCT);
@@ -1285,15 +1293,6 @@ else
 				print $form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, '', 0, '100%');
 				print "</td></tr>";
 			}
-
-	        // Units
-	        if($conf->global->PRODUCT_USE_UNITS)
-	        {
-		        print '<tr><td>'.$langs->trans('Unit').'</td>';
-		        print '<td colspan="3">';
-		        print $form->selectUnits($object->fk_unit);
-		        print '</td></tr>';
-	        }
 
             print '</table>';
 
@@ -1483,10 +1482,10 @@ else
             }
 
             // Description
-            print '<tr><td valign="top">'.$langs->trans("Description").'</td><td colspan="2">'.(dol_textishtml($object->description)?$object->description:dol_nl2br($object->description,1,true)).'</td></tr>';
+            print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td colspan="2">'.(dol_textishtml($object->description)?$object->description:dol_nl2br($object->description,1,true)).'</td></tr>';
 
             // Public URL
-            print '<tr><td valign="top">'.$langs->trans("PublicUrl").'</td><td colspan="2">';
+            print '<tr><td>'.$langs->trans("PublicUrl").'</td><td colspan="2">';
 			print dol_print_url($object->url);
             print '</td></tr>';
 
@@ -1567,7 +1566,7 @@ else
 			{
 				$unit = $object->getLabelOfUnit();
 
-				print '<tr><td>'.$langs->trans('Unit').'</td><td>';
+				print '<tr><td>'.$langs->trans('DefaultUnitToShow').'</td><td>';
 				if ($unit !== '') {
 					print $langs->trans($unit);
 				}
@@ -1593,7 +1592,7 @@ else
 
             // Note
             print '<!-- show Note --> '."\n";
-            print '<tr><td valign="top">'.$langs->trans("Note").'</td><td colspan="'.(2+(($showphoto||$showbarcode)?1:0)).'">'.(dol_textishtml($object->note)?$object->note:dol_nl2br($object->note,1,true)).'</td></tr>'."\n";
+            print '<tr><td class="tdtop">'.$langs->trans("Note").'</td><td colspan="'.(2+(($showphoto||$showbarcode)?1:0)).'">'.(dol_textishtml($object->note)?$object->note:dol_nl2br($object->note,1,true)).'</td></tr>'."\n";
             print '<!-- End show Note --> '."\n";
 
 			// Categories

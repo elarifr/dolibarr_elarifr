@@ -258,7 +258,7 @@ textarea.cke_source:focus
 input, input.flat, textarea, textarea.flat, form.flat select, select, select.flat, .dataTables_length label select {
     font-size: <?php print $fontsize ?>px;
     font-family: <?php print $fontlist ?>;
-    background: #FDFDFD;
+    background: #FFF;
     color: #111;
     border: 1px solid #C0C0C0;
     margin: 0px 0px 0px 0px;
@@ -404,7 +404,9 @@ th .button {
 	-webkit-border-radius:0px !important;
 	border-radius:0px !important;
 }
-
+.maxwidthsearch {		/* Max width of column with the search picto */
+	width: 54px;
+}
 .valignmiddle {
 	vertical-align: middle;
 }
@@ -1891,7 +1893,7 @@ div.tabBar div.border .table-border-row, div.tabBar div.border .table-key-border
 }
 div .tdtop {
     vertical-align: top;
-	padding-top: 5px;
+	padding-top: 5px !important;
 	padding-bottom: 0px;
 }
 
@@ -2545,6 +2547,8 @@ a.impayee:hover { font-weight: bold; color: #550000; }
 .legendColorBox, .legendLabel { border: none !important; }
 div.dolgraph div.legend, div.dolgraph div.legend div { background-color: rgba(255,255,255,0) !important; }
 div.dolgraph div.legend table tbody tr { height: auto; }
+td.legendColorBox { padding: 2px 2px 2px 0 !important; }
+td.legendLabel { padding: 2px 2px 2px 0 !important; }
 
 .photo {
 	border: 0px;
@@ -2554,9 +2558,9 @@ div.dolgraph div.legend table tbody tr { height: auto; }
 	margin-top: 10px;
 }
 .photowithmargin {
-	-webkit-box-shadow: 0px 0px 3px #777;
+/*	-webkit-box-shadow: 0px 0px 3px #777;
 	-moz-box-shadow: 0px 0px 3px #777;
-	box-shadow: 0px 0px 3px #777;
+	box-shadow: 0px 0px 3px #777;*/
 }
 .photointoolitp {
 	margin-top: 6px;

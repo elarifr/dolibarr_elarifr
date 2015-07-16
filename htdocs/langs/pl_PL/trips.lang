@@ -9,6 +9,7 @@ TripCard=Koszty karta raport
 AddTrip=Tworzenie raportu wydatków
 ListOfTrips=List of expense reports
 ListOfFees=Wykaz opłat
+ShowTrip=Show expense report
 NewTrip=Nowy raport z wydatków
 CompanyVisited=Firm / fundacji odwiedzonych
 Kilometers=Kilometrów
@@ -76,6 +77,7 @@ BROUILLONNER=Otworzyć na nowo
 SendToValid=Sent on approval
 ModifyInfoGen=Edycja
 ValidateAndSubmit=Weryfikacja i przedkłada do zatwierdzenia
+ValidatedWaitingApproval=Validated (waiting for approval)
 
 NOT_VALIDATOR=Nie masz uprawnień do zatwierdzania tego raportu wydatków
 NOT_AUTHOR=Nie jesteś autorem tego raportu wydatków. Operacja anulowana.

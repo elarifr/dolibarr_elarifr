@@ -2273,7 +2273,7 @@ if ($action == 'create')
 	// Date invoice
 	print '<tr><td class="fieldrequired">' . $langs->trans('Date') . '</td><td colspan="2">';
 	$datefacture = dol_mktime(12, 0, 0, $_POST['remonth'], $_POST['reday'], $_POST['reyear']);
-	$form->select_date($datefacture?$datefacture:$dateinvoice, '', '', '', '', "add", 1, 1);
+	print $form->select_date($datefacture?$datefacture:$dateinvoice, '', '', '', '', "add", 1, 1, 1);
 	print '</td></tr>';
 
 	// Payment term
@@ -2300,7 +2300,7 @@ if ($action == 'create')
 		$langs->load('projects');
 		print '<tr><td>' . $langs->trans('Project') . '</td><td colspan="2">';
 		$numprojet = $formproject->select_projects($soc->id, $projectid, 'projectid', 0);
-		print ' &nbsp; <a href="../projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create&socid='.$soc->id).'">' . $langs->trans("AddProject") . '</a>';
+		print ' &nbsp; <a href="'.DOL_URL_ROOT.'/projet/card.php?socid=' . $soc->id . '&action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create&socid='.$soc->id).'">' . $langs->trans("AddProject") . '</a>';
 		print '</td></tr>';
 	}
 
@@ -2457,12 +2457,12 @@ if ($action == 'create')
 					print '<td class="nobordernopadding nowrap">';
 					print $langs->trans('From') . ' ';
 					print '</td><td class="nobordernopadding nowrap">';
-					print $form->select_date('', 'date_start' . $i, $usehm, $usehm, 1, "add");
+					print $form->select_date('', 'date_start' . $i, $usehm, $usehm, 1, "add", 1, 0, 1);
 					print '</td></tr>';
 					print '<td class="nobordernopadding nowrap">';
 					print $langs->trans('to') . ' ';
 					print '</td><td class="nobordernopadding nowrap">';
-					print $form->select_date('', 'date_end' . $i, $usehm, $usehm, 1, "add");
+					print $form->select_date('', 'date_end' . $i, $usehm, $usehm, 1, "add", 1, 0, 1);
 					print '</td></tr></table>';
 					print '</td>';
 				}
@@ -2502,8 +2502,8 @@ if ($action == 'create')
 	}
 
 	print '<br>';
-} 
-else if ($id > 0 || ! empty($ref)) 
+}
+else if ($id > 0 || ! empty($ref))
 {
 	/*
 	 * Show object in view mode
@@ -2860,7 +2860,7 @@ else if ($id > 0 || ! empty($ref))
 		$outstandingBills = $soc->get_OutstandingBill();
 		print ' - ' . $langs->trans('CurrentOutstandingBill') . ': ';
 		print price($outstandingBills, '', $langs, 0, 0, - 1, $conf->currency);
-		if ($soc->outstanding_limit != '') 
+		if ($soc->outstanding_limit != '')
 		{
 			if ($outstandingBills > $soc->outstanding_limit)
 				print img_warning($langs->trans("OutstandingBillReached"));
@@ -2950,7 +2950,7 @@ else if ($id > 0 || ! empty($ref))
 		} else
 			print '. ';
 	}
-	if ($absolute_creditnote > 0) 
+	if ($absolute_creditnote > 0)
 	{
 		// If validated, we show link "add credit note to payment"
 		if ($object->statut != 1 || $object->type == Facture::TYPE_CREDIT_NOTE || $object->type == Facture::TYPE_DEPOSIT) {
@@ -3855,8 +3855,9 @@ else if ($id > 0 || ! empty($ref))
 			$file = $fileparams['fullname'];
 		}
 
+		print '<div class="clearboth"></div>';
 		print '<br>';
-		print_titre($langs->trans($titreform));
+		print_fiche_titre($langs->trans($titreform));
 
 		// Cree l'objet formulaire mail
 		dol_fiche_head();
