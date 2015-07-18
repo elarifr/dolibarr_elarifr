@@ -1,9 +1,15 @@
 <?php
 /* Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
+<<<<<<< HEAD
  * Copyright (C) 2013-2015 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
  * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2014 	   Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2015      Ari Elbaz (elarifr)  <github@accedinfo.com>
+=======
+ * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
+ * Copyright (C) 2014 	   Juanjo Menent		<jmenent@2byte.es>
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,6 +126,11 @@ class AccountingAccount extends CommonObject
 		$error = 0;
 		$now = dol_now();
 
+<<<<<<< HEAD
+=======
+		$now=dol_now();
+
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		// Clean parameters
 		if (isset($this->fk_pcg_version))
 			$this->fk_pcg_version = trim($this->fk_pcg_version);

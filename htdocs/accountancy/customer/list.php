@@ -1,7 +1,12 @@
 <?php
 /* Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
+<<<<<<< HEAD
  * Copyright (C) 2013-2015 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
  * Copyright (C) 2014-2015 Ari Elbaz (elarifr)	<github@accedinfo.com>
+=======
+ * Copyright (C) 2013-2014 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)	<github@accedinfo.com>
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
  * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
  *
@@ -31,7 +36,10 @@ require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/accountancy/class/html.formventilation.class.php';
+<<<<<<< HEAD
 require_once DOL_DOCUMENT_ROOT.'/accountancy/class/accountingaccount.class.php';
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 
 // Langs
 $langs->load("compta");
@@ -46,6 +54,7 @@ $action = GETPOST('action');
 $codeventil = GETPOST('codeventil', 'array');
 $mesCasesCochees = GETPOST('mesCasesCochees', 'array');
 
+<<<<<<< HEAD
 //Search Getpost
 $search_invoice = GETPOST('search_invoice','alpha');
 $search_ref     = GETPOST('search_ref','alpha');
@@ -78,6 +87,8 @@ if (! $sortorder) {
 	}
 }
 
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 // Security check
 if ($user->societe_id > 0)
 	accessforbidden();
@@ -86,6 +97,7 @@ if (! $user->rights->accounting->ventilation->dispatch)
 
 $formventilation = new FormVentilation($db);
 
+<<<<<<< HEAD
 $accounting = new AccountingAccount($db);
 $aarowid_s = $accounting->fetch('', ACCOUNTING_SERVICE_SOLD_ACCOUNT);
 $aarowid_p = $accounting->fetch('', ACCOUNTING_PRODUCT_SOLD_ACCOUNT);
@@ -105,6 +117,8 @@ if (GETPOST("button_removefilter_x") || GETPOST("button_removefilter"))
  * View
  */
 
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 llxHeader('', $langs->trans("Ventilation"));
 
 print  '<script type="text/javascript">
@@ -123,7 +137,6 @@ print  '<script type="text/javascript">
 			    });
 			});
 			 </script>';
-
 /*
  * Action
  */
@@ -164,10 +177,16 @@ if ($action == 'ventil') {
  */
 
 
+<<<<<<< HEAD
 $sql = "SELECT f.facnumber, f.rowid as facid, f.datef, f.type as ftype, l.fk_product, l.description, l.total_ht, l.rowid, l.fk_code_ventilation,";
 $sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.fk_product_type as type, p.accountancy_code_sell as code_sell, p.tva_tx as tva_tx_prod";
 $sql .= " , aa.rowid as aarowid";
 $sql .= " , l.product_type as type_l, l.tva_tx as tva_tx_line";
+=======
+$sql = "SELECT f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.rowid, l.fk_code_ventilation,";
+$sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.fk_product_type as type, p.accountancy_code_sell as code_sell";
+$sql .= " , aa.rowid as aarowid";
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 $sql .= " FROM " . MAIN_DB_PREFIX . "facture as f";
 $sql .= " INNER JOIN " . MAIN_DB_PREFIX . "facturedet as l ON f.rowid = l.fk_facture";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "product as p ON p.rowid = l.fk_product";
@@ -206,9 +225,16 @@ if (strlen(trim($search_vat)))
 if (! empty($conf->multicompany->enabled)) {
 	$sql .= " AND f.entity IN (" . getEntity("facture", 1) . ")";
 }
+<<<<<<< HEAD
 
 $sql.= $db->order($sortfield,$sortorder);
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 
+$sql .= " ORDER BY l.rowid";
+if ($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_TODO > 0) {
+	$sql .= " DESC ";
+}
 $sql .= $db->plimit($limit + 1, $offset);
 
 dol_syslog("/accountancy/customer/list.php sql=" . $sql, LOG_DEBUG);
@@ -218,15 +244,21 @@ if ($result) {
 	$i = 0;
 
 	print_barre_liste($langs->trans("InvoiceLines"), $page, $_SERVER["PHP_SELF"], "", $sortfield, $sortorder, '', $num_lines);
+<<<<<<< HEAD
 	print '<br><b>' . $langs->trans("DescVentilTodoCustomer") . '</b></br>';
 	print_liste_field_titre($langs->trans("Date"), $_SERVER["PHP_SELF"],"f.datef","",$param,'',$sortfield,$sortorder);
 	print '&nbsp;&nbsp;';
 	print_liste_field_titre($langs->trans("RowId"), $_SERVER["PHP_SELF"],"l.rowid","",$param,'',$sortfield,$sortorder);	
+=======
+
+	print '<br><b>' . $langs->trans("DescVentilTodoCustomer") . '</b></br>';
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 
 	print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post">' . "\n";
 	print '<input type="hidden" name="action" value="ventil">';
 
 	print '<table class="noborder" width="100%">';
+<<<<<<< HEAD
 	print '<tr class="liste_titre">';
 	print_liste_field_titre($langs->trans("Invoice"), $_SERVER["PHP_SELF"],"f.facnumber","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Ref"), $_SERVER["PHP_SELF"],"p.ref","",$param,'',$sortfield,$sortorder);
@@ -256,17 +288,28 @@ if ($result) {
 	print '&nbsp;';
 	print '<input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'searchclear.png','','',1).'" name="button_removefilter" value="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'" title="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'">';
 	print '</td>';
+=======
+	print '<tr class="liste_titre"><td>' . $langs->trans("Invoice") . '</td>';
+	print '<td>' . $langs->trans("Ref") . '</td>';
+	print '<td>' . $langs->trans("Label") . '</td>';
+	print '<td>' . $langs->trans("Description") . '</td>';
+	print '<td align="right">' . $langs->trans("Amount") . '</td>';
+	print '<td align="right">' . $langs->trans("AccountAccounting") . '</td>';
+	print '<td align="center">' . $langs->trans("IntoAccount") . '</td>';
+	print '<td align="center">' . $langs->trans("Ventilate") . '<br><label id="select-all">'.$langs->trans('All').'</label>/<label id="unselect-all">'.$langs->trans('None').'</label>'.'</td>';
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 	print '</tr>';
 
 	$facture_static = new Facture($db);
 	$product_static = new Product($db);
 	$form = new Form($db);
 
-	$var = true;
+	$var = True;
 	while ( $i < min($num_lines, $limit) ) {
 		$objp = $db->fetch_object($result);
 		$var = ! $var;
 
+<<<<<<< HEAD
 		$objp->code_sell_l = '';
 		$objp->code_sell_p = '';
 		$objp->aarowid_suggest = '';
@@ -294,6 +337,32 @@ if ($result) {
 				if ($objp->aarowid == '') $objp->aarowid_suggest = $aarowid_p;
 			}
 		if ($objp->code_sell_l <> $objp->code_sell_p) $code_sell_p_l_differ = 'color:red';
+=======
+		// product_type: 0 = service ? 1 = product
+		// if product does not exist we use the value of product_type provided in facturedet to define if this is a product or service
+		// issue : if we change product_type value in product DB it should differ from the value stored in facturedet DB !
+		$code_sell_notset = '';
+
+		if (empty($objp->code_sell)) {
+			$code_sell_notset = 'color:red';
+
+			if (! empty($objp->type)) {
+				if ($objp->type == 1) {
+					$objp->code_sell = (! empty($conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT) ? $conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT : $langs->trans("CodeNotDef"));
+				} else {
+					$objp->code_sell = (! empty($conf->global->ACCOUNTING_SERVICE_SOLD_ACCOUNT) ? $conf->global->ACCOUNTING_SERVICE_SOLD_ACCOUNT : $langs->trans("CodeNotDef"));
+				}
+			} else {
+				$code_sell_notset = 'color:blue';
+
+				if ($objp->type == 1) {
+					$objp->code_sell = (! empty($conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT) ? $conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT : $langs->trans("CodeNotDef"));
+				} else {
+					$objp->code_sell = (! empty($conf->global->ACCOUNTING_SERVICE_SOLD_ACCOUNT) ? $conf->global->ACCOUNTING_SERVICE_SOLD_ACCOUNT : $langs->trans("CodeNotDef"));
+				}
+			}
+		}
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 
 		print "<tr $bc[$var]>";
 
@@ -301,7 +370,12 @@ if ($result) {
 		$facture_static->ref = $objp->facnumber;
 		$facture_static->id = $objp->facid;
 		print '<td>' . $facture_static->getNomUrl(1) . '</td>';
+<<<<<<< HEAD
 		// Ref Product
+=======
+
+		// Ref produit
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		$product_static->ref = $objp->product_ref;
 		$product_static->id = $objp->product_id;
 		$product_static->type = $objp->type;
@@ -312,6 +386,7 @@ if ($result) {
 			print '&nbsp;';
 		print '</td>';
 
+<<<<<<< HEAD
 		print '<td style="' . $code_sell_p_l_differ . '">' . dol_trunc($objp->product_label, 24) . '</td>';
 		$trunclength = defined('ACCOUNTING_LENGTH_DESCRIPTION') ? ACCOUNTING_LENGTH_DESCRIPTION : 32;
 		print '<td style="' . $code_sell_p_l_differ . '">' . nl2br(dol_trunc($objp->description, $trunclength)) . '</td>';
@@ -324,15 +399,37 @@ if ($result) {
 		} else {
 			print 'lines='.$objp->code_sell_l . '<br />product=' . $objp->code_sell_p;
 		}
+=======
+		print '<td>' . dol_trunc($objp->product_label, 24) . '</td>';
+		print '<td>' . nl2br(dol_trunc($objp->description, 32)) . '</td>';
+
+		print '<td align="right">';
+		print price($objp->total_ht);
+		print '</td>';
+
+		print '<td align="center" style="' . $code_sell_notset . '">';
+		print $objp->code_sell;
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		print '</td>';
 
 		print '<td align="center">';
+<<<<<<< HEAD
 		print $formventilation->select_account($objp->aarowid_suggest, 'codeventil[]', 1);
 		print '</td>';
 		print '<td align="center">' . $objp->rowid . '</td>';
 		print '<td align="center">';
 		print '<input type="checkbox" name="mesCasesCochees[]" value="' . $objp->rowid . "_" . $i . '"' . ($objp->aarowid ? "checked" : "") . '/>';
 		print '</td>';
+=======
+		print $formventilation->select_account($objp->aarowid, 'codeventil[]', 1);
+		print '</td>';
+
+		// Colonne choix ligne a ventiler
+		print '<td align="center">';
+		print '<input type="checkbox" name="mesCasesCochees[]" value="' . $objp->rowid . "_" . $i . '"' . ($objp->aarowid ? "checked" : "") . '/>';
+		print '</td>';
+
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		print '</tr>';
 		$i ++;
 	}
@@ -344,5 +441,10 @@ if ($result) {
 	print $db->error();
 }
 
+<<<<<<< HEAD
 llxFooter();
 $db->close();
+=======
+$db->close();
+llxFooter();
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr

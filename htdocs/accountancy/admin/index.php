@@ -2,7 +2,11 @@
 /* Copyright (C) 2013-2014 Olivier Geffroy		<jeff@jeffinfo.com>
  * Copyright (C) 2013-2014 Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2013-2015 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
+<<<<<<< HEAD
  * Copyright (C) 2014-2015 Ari Elbaz (elarifr)	<github@accedinfo.com>
+=======
+ * Copyright (C) 2014      Ari Elbaz (elarifr)	<github@accedinfo.com>
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
  * Copyright (C) 2014      Marcos García        <marcosgdf@gmail.com>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>
  * Copyright (C) 2015      Jean-François Ferry	<jfefe@aternatik.fr>
@@ -48,8 +52,11 @@ $action = GETPOST('action', 'alpha');
 // Other parameters ACCOUNTING_*
 $list = array (
 		'ACCOUNTING_LIMIT_LIST_VENTILATION',
+<<<<<<< HEAD
         'ACCOUNTING_LENGTH_DESCRIPTION',				// adjust size displayed for lines description for dol_trunc
 		'ACCOUNTING_LENGTH_DESCRIPTION_ACCOUNT',		// adjust size displayed for select account description for dol_trunc
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		'ACCOUNTING_LENGTH_GACCOUNT',
 		'ACCOUNTING_LENGTH_AACCOUNT',
 		'ACCOUNTING_ACCOUNT_CUSTOMER',

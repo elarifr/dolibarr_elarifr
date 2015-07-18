@@ -1,7 +1,7 @@
 <?php
 /* Copyright (C) 2013-2014 Olivier Geffroy		<jeff@jeffinfo.com>
  * Copyright (C) 2013-2015 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
- * Copyright (C) 2014-2015 Ari Elbaz (elarifr)	<github@accedinfo.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)	<github@accedinfo.com>
  * Copyright (C) 2014      Florian Henry		<florian.henry@open-concept.pro>
  * Copyright (C) 2014	   Juanjo Menent		<jmenent@2byte.es>   
  *
@@ -54,6 +54,7 @@ if ($page < 0) $page = 0;
 
 $pageprev = $page - 1;
 $pagenext = $page + 1;
+<<<<<<< HEAD
 //$limit = $conf->liste_limit;
 if (! empty($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION)) {
 	$limit = $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION;
@@ -80,6 +81,11 @@ if (! $sortorder) {
 		$sortorder = " DESC ";
 	}
 }
+=======
+$limit = $conf->liste_limit;
+if (! $sortfield) $sortfield="f.facnumber";
+if (! $sortorder) $sortorder="DESC";
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 
 // Security check
 if ($user->societe_id > 0)
@@ -130,6 +136,7 @@ if (is_array($changeaccount) && count($changeaccount) > 0) {
 
 llxHeader('', $langs->trans("CustomersVentilation") . ' - ' . $langs->trans("Dispatched"));
 
+<<<<<<< HEAD
 print  '<script type="text/javascript">
 			$(function () {
 				$(\'#select-all\').click(function(event) {
@@ -155,6 +162,8 @@ print  '<script type="text/javascript">
 /*
  * Customer Invoice lines
  */
+=======
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 $sql = "SELECT l.rowid , f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.qty, l.tva_tx, l.fk_code_ventilation, aa.label, aa.account_number,";
 $sql .= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.fk_product_type as type";
 $sql .= " FROM " . MAIN_DB_PREFIX . "facture as f";
@@ -213,11 +222,18 @@ if ($result) {
 	print_liste_field_titre($langs->trans("Account"), $_SERVER["PHP_SELF"],"aa.account_number","",$param,'align="center"',$sortfield,$sortorder);
 	print_liste_field_titre('');
 	print_liste_field_titre('');
+<<<<<<< HEAD
 	print_liste_field_titre($langs->trans("Ventilate").'<br><label id="select-all">'.$langs->trans('All').'</label>/<label id="unselect-all">'.$langs->trans('None').'</label>','','','','','align="center"');
 	print "</tr>\n";
 
 	print '<tr class="liste_titre">';
 	print '<td class="liste_titre"><input type="text" class="flat" name="search_invoice" size="10" value="' . $search_invoice . '"></td>';
+=======
+	print_liste_field_titre('');
+	print "</tr>\n";
+	
+	print '<tr class="liste_titre"><td><input type="text" class="flat" name="search_facture" size="8" value="' . $search_facture . '"></td>';
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 	print '<td class="liste_titre"><input type="text" class="flat" size="15" name="search_ref" value="' . $search_ref . '"></td>';
 	print '<td class="liste_titre"><input type="text" class="flat" size="15" name="search_label" value="' . $search_label . '"></td>';
 	print '<td class="liste_titre"><input type="text" class="flat" size="15" name="search_desc" value="' . $search_desc . '"></td>';
@@ -243,7 +259,11 @@ if ($result) {
 		$facture_static->id = $objp->facid;
 		print '<td>' . $facture_static->getNomUrl(1) . '</td>';
 		
+<<<<<<< HEAD
 		// Ref Product
+=======
+		// Ref produit
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		$product_static->ref = $objp->product_ref;
 		$product_static->id = $objp->product_id;
 		$product_static->type = $objp->type;
@@ -258,8 +278,13 @@ if ($result) {
 		print '<td>' . nl2br(dol_trunc($objp->description, 32)) . '</td>';
 		print '<td align="right">' . price($objp->total_ht) . '</td>';
 		print '<td align="center">' . $codecompta . '</td>';
+<<<<<<< HEAD
 		print '<td align="right">' . $objp->rowid . '</td>';
 		print '<td align="left"><a href="./card.php?id=' . $objp->rowid . '">';
+=======
+		print '<td>' . $objp->rowid . '</td>';
+		print '<td><a href="./card.php?id=' . $objp->rowid . '">';
+>>>>>>> parent of 1b3f91e... -maj de admin productaccount; attention pas de menu existant dans dolibarr
 		print img_edit();
 		print '</a></td>';
 		
