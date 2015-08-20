@@ -92,7 +92,7 @@ $sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client,";
 $sql .= " fd.rowid as fdid, fd.description, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql .= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
 $sql .= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte, ";
-$sql .= " ct.accountancy_code_sell as account_tva";
+$sql .= " fd.situation_percent,ct.accountancy_code_sell as account_tva";
 $sql .= " FROM " . MAIN_DB_PREFIX . "facturedet as fd";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "product as p ON p.rowid = fd.fk_product";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accountingaccount as aa ON aa.rowid = fd.fk_code_ventilation";
@@ -100,24 +100,24 @@ $sql .= " JOIN " . MAIN_DB_PREFIX . "facture as f ON f.rowid = fd.fk_facture";
 $sql .= " JOIN " . MAIN_DB_PREFIX . "societe as s ON s.rowid = f.fk_soc";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "c_tva as ct ON fd.tva_tx = ct.taux AND ct.fk_pays = '" . $idpays . "'";
 $sql .= " WHERE fd.fk_code_ventilation > 0 ";
-if (! empty($conf->multicompany->enabled)) 
-{
+if (! empty($conf->multicompany->enabled)) {
 	$sql .= " AND f.entity IN (" . getEntity("facture", 1) . ")";
 }
 $sql .= " AND f.fk_statut > 0";
-if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS))
-	$sql .= " AND f.type IN (0,1,2,5)";
-else
-	$sql .= " AND f.type IN (0,1,2,3,5)";
+if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) {
+	$sql.= " AND f.type IN (".Facture::TYPE_STANDARD.",".Facture::TYPE_REPLACEMENT.",".Facture::TYPE_CREDIT_NOTE.",".Facture::TYPE_SITUATION.")";
+}
+else {
+	$sql.= " AND f.type IN (".Facture::TYPE_STANDARD.",".Facture::TYPE_STANDARD.",".Facture::TYPE_CREDIT_NOTE.",".Facture::TYPE_DEPOSIT.",".Facture::TYPE_SITUATION.")";
+}
 $sql .= " AND fd.product_type IN (0,1)";
 if ($date_start && $date_end)
 	$sql .= " AND f.datef >= '" . $db->idate($date_start) . "' AND f.datef <= '" . $db->idate($date_end) . "'";
 $sql .= " ORDER BY f.datef";
 
-dol_syslog('accountancy/journal/sellsjournal.php:: $sql=' . $sql);
+dol_syslog('accountancy/journal/sellsjournal.php', LOG_DEBUG);
 $result = $db->query($sql);
-if ($result) 
-{
+if ($result) {
 	$tabfac = array ();
 	$tabht = array ();
 	$tabtva = array ();
@@ -127,16 +127,14 @@ if ($result)
 	$num = $db->num_rows($result);
 	$i = 0;
 
-	while ( $i < $num ) 
-	{
+	while ( $i < $num ) {
 		$obj = $db->fetch_object($result);
 		// les variables
 		$cptcli = (! empty($conf->global->ACCOUNTING_ACCOUNT_CUSTOMER)) ? $conf->global->ACCOUNTING_ACCOUNT_CUSTOMER : $langs->trans("CodeNotDef");
 		$compta_soc = (! empty($obj->code_compta)) ? $obj->code_compta : $cptcli;
 
 		$compta_prod = $obj->compte;
-		if (empty($compta_prod)) 
-		{
+		if (empty($compta_prod)) {
 			if ($obj->product_type == 0)
 				$compta_prod = (! empty($conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT)) ? $conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT : $langs->trans("CodeNotDef");
 			else
@@ -149,11 +147,15 @@ if ($result)
 		$line = new FactureLigne($db);
 		$line->fetch($obj->rowid);
 		$prev_progress = $line->get_prev_progress();
-		if ($obj->situation_percent == 0) 
-		{ // Avoid divide by 0
+		if ($obj->type==Facture::TYPE_SITUATION) {
+			// Avoid divide by 0
+			if ($obj->situation_percent == 0) {
 			$situation_ratio = 0;
 		} else {
 			$situation_ratio = ($obj->situation_percent - $prev_progress) / $obj->situation_percent;
+			}
+		} else {
+			$situation_ratio = 1;
 		}
 
 		// Invoice lines
@@ -217,14 +219,11 @@ if ($action == 'writebookkeeping')
 		}
 
 		// Product / Service
-		foreach ($tabht[$key] as $k => $mt) 
-		{
-			if ($mt) 
-			{
+		foreach ($tabht[$key] as $k => $mt) {
+			if ($mt) {
 				// get compte id and label
 				$accountingaccount = new AccountingAccount($db);
-				if ($accountingaccount->fetch(null, $k)) 
-				{
+				if ($accountingaccount->fetch(null, $k)) {
 					$bookkeeping = new BookKeeping($db);
 					$bookkeeping->doc_date = $val["date"];
 					$bookkeeping->doc_ref = $val["ref"];

@@ -34,16 +34,16 @@ require_once DOL_DOCUMENT_ROOT.'/compta/facture/class/facture.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 
 // Langs
-$langs->load("compta");
 $langs->load("bills");
+$langs->load("compta");
 $langs->load("main");
 $langs->load("accountancy");
 
 $account_parent = GETPOST('account_parent');
 $changeaccount  = GETPOST('changeaccount');
 //Search Getpost
-$search_invoice = GETPOST('search_invoice','alpha');
 $search_ref     = GETPOST('search_ref','alpha');
+$search_invoice = GETPOST('search_invoice','alpha');
 $search_label   = GETPOST('search_label','alpha');
 $search_desc    = GETPOST('search_desc','alpha');
 $search_amount  = GETPOST('search_amount','alpha');
@@ -54,8 +54,6 @@ $search_vat     = GETPOST('search_vat','alpha');
 $sortfield = GETPOST('sortfield','alpha');
 $sortorder = GETPOST('sortorder','alpha');
 $page = GETPOST('page','int');
-
-//if ($page == -1) { $page = 0; }
 if ($page < 0) $page = 0;
 
 $pageprev = $page - 1;
@@ -82,7 +80,6 @@ $offset = $limit * $page;
 // l.rowid when an invoice is edited rowid are added at end of table & facturedet.rowid are not ordered
 if (! $sortfield) $sortfield="f.datef, f.facnumber, l.rowid";
 
-//if (! $sortorder) $sortorder="DESC";
 if (! $sortorder) 
 {
 	if ($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_DONE > 0) 
@@ -228,16 +225,15 @@ if ($result)
 	print '&nbsp;&nbsp;';
 	print_liste_field_titre($langs->trans("RowId"), $_SERVER["PHP_SELF"],"l.rowid","",$param,'',$sortfield,$sortorder);	
 	
-	print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post"><br />';
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 	print '<table class="noborder" width="100%">';
 	
-	print '<br><br><div class="inline-block divButAction">' . $langs->trans("ChangeAccount") . '<br>';
+	print '<br><div class="inline-block divButAction">' . $langs->trans("ChangeAccount") . '<br>';
 	print $formventilation->select_account($account_parent, 'account_parent', 1);
 	print '<input type="submit" class="butAction" value="' . $langs->trans("Validate") . '"/></div>';
 	
 	print '<tr class="liste_titre">';
 	print_liste_field_titre($langs->trans("Invoice"), $_SERVER["PHP_SELF"],"f.facnumber","",$param,'',$sortfield,$sortorder);
-//	print_liste_field_titre($langs->trans("Date"), $_SERVER["PHP_SELF"],"f.datef","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Ref"), $_SERVER["PHP_SELF"],"p.ref","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Label"), $_SERVER["PHP_SELF"],"p.label","",$param,'',$sortfield,$sortorder);
 	print_liste_field_titre($langs->trans("Description"), $_SERVER["PHP_SELF"],"l.description","",$param,'',$sortfield,$sortorder);
