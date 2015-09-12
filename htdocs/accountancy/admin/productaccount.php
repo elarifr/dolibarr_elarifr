@@ -64,13 +64,13 @@ if ($page < 0)
 	$page = 0;
 $pageprev = $page - 1;
 $pagenext = $page + 1;
-//bug in page limit if ACCOUNTING_LIMIT_LIST_VENTILATION < $conf->liste_limit there is no pagination displayed !
+// bug in page limit if ACCOUNTING_LIMIT_LIST_VENTILATION < $conf->liste_limit there is no pagination displayed !
 if (! empty($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION) && $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION >= $conf->liste_limit) {
-    $limit = $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION;
-//} else if ($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION <= 0) {
-//  $limit = $conf->liste_limit;
+	$limit = $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION;
+	// } else if ($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION <= 0) {
+	// $limit = $conf->liste_limit;
 } else {
-    $limit = $conf->liste_limit;
+	$limit = $conf->liste_limit;
 }
 $offset = $limit * $page;
 
@@ -186,24 +186,24 @@ llxHeader('', $langs->trans("Accounts"));
  * View
  */
 
-print  '<script type="text/javascript">
-            $(function () {
-                $(\'#select-all\').click(function(event) {
-                    // Iterate each checkbox
-                    $(\':checkbox\').each(function() {
-                        this.checked = true;
-                    });
-                });
-                $(\'#unselect-all\').click(function(event) {
-                    // Iterate each checkbox
-                    $(\':checkbox\').each(function() {
-                        this.checked = false;
-                    });
-                });
-            });
-             </script>';
+print '<script type="text/javascript">
+			$(function () {
+				$(\'#select-all\').click(function(event) {
+				    // Iterate each checkbox
+				    $(\':checkbox\').each(function() {
+				    	this.checked = true;
+				    });
+			    });
+			    $(\'#unselect-all\').click(function(event) {
+				    // Iterate each checkbox
+				    $(\':checkbox\').each(function() {
+				    	this.checked = false;
+				    });
+			    });
+			});
+			 </script>';
 
-$sql  = "SELECT p.rowid, p.ref , p.label, p.description , p.accountancy_code_sell, p.accountancy_code_buy, p.tms, p.fk_product_type as product_type";
+$sql = "SELECT p.rowid, p.ref , p.label, p.description , p.accountancy_code_sell, p.accountancy_code_buy, p.tms, p.fk_product_type as product_type";
 $sql .= " FROM " . MAIN_DB_PREFIX . "product as p";
 $sql .= " WHERE (";
 
@@ -212,11 +212,11 @@ $pcgver = $conf->global->CHARTOFACCOUNTS;
 IF ($accounting_product_mode == 'ACCOUNTANCY_BUY' ? ' checked' : '') {
 	$sql .= " p.accountancy_code_buy ='' OR p.accountancy_code_buy IS NULL";
 	$sql .= " OR (p.accountancy_code_buy  IS NOT NULL AND p.accountancy_code_buy  != '' AND p.accountancy_code_buy  NOT IN
-	(SELECT aa.account_number FROM " . MAIN_DB_PREFIX . "accountingaccount as aa , " . MAIN_DB_PREFIX . "accounting_system as asy  WHERE fk_pcg_version = asy.pcg_version AND asy.rowid = " . $pcgver . "))";
+	(SELECT aa.account_number FROM " . MAIN_DB_PREFIX . "accounting_account as aa , " . MAIN_DB_PREFIX . "accounting_system as asy  WHERE fk_pcg_version = asy.pcg_version AND asy.rowid = " . $pcgver . "))";
 } else {
 	$sql .= " p.accountancy_code_sell ='' OR p.accountancy_code_sell IS NULL ";
 	$sql .= " OR (p.accountancy_code_sell IS NOT NULL AND p.accountancy_code_sell != '' AND p.accountancy_code_sell NOT IN
-	(SELECT aa.account_number FROM " . MAIN_DB_PREFIX . "accountingaccount as aa , " . MAIN_DB_PREFIX . "accounting_system as asy  WHERE fk_pcg_version = asy.pcg_version AND asy.rowid = " . $pcgver . "))";
+	(SELECT aa.account_number FROM " . MAIN_DB_PREFIX . "accounting_account as aa , " . MAIN_DB_PREFIX . "accounting_system as asy  WHERE fk_pcg_version = asy.pcg_version AND asy.rowid = " . $pcgver . "))";
 }
 
 $sql .= ")";
@@ -290,7 +290,7 @@ if ($result) {
 		print '<th align="left">' . $langs->trans("Accountancy_code_sell_suggest") . '</td>';
 	}
 	// print_liste_field_titre('');
-	print '<td align="center">' . $langs->trans("Ventilate") . '<br><label id="select-all">' . $langs->trans('All') . '</label>/<label id="unselect-all">' . $langs->trans('None') . '</label>' . '</td>';
+	print_liste_field_titre($langs->trans("Ventilate") . '<br><label id="select-all">' . $langs->trans('All') . '</label> / <label id="unselect-all">' . $langs->trans('None') . '</label>');
 	print '</tr>';
 	print '<tr class="liste_titre">';
 	print '<td class="liste_titre"><input type="text" class="flat" size="20" name="search_ref" value="' . $search_ref . '"></td>';
@@ -306,12 +306,12 @@ if ($result) {
 	print '</tr>';
 	
 	$var = true;
-
-    while ( $i < min($num_lines, 250) ) {
-        $obj = $db->fetch_object($result);
-        $var = ! $var;
-
-        $compta_prodsell = $obj->accountancy_code_sell;
+	
+	while ( $i < min($num_lines, 250) ) {
+		$obj = $db->fetch_object($result);
+		$var = ! $var;
+		
+		$compta_prodsell = $obj->accountancy_code_sell;
 		
 		if ($obj->product_type == 0) {
 			$compta_prodsell = (! empty($conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT) ? $conf->global->ACCOUNTING_PRODUCT_SOLD_ACCOUNT : $langs->trans("CodeNotDef"));
@@ -347,15 +347,15 @@ if ($result) {
         else
             print '-&nbsp;';
         print '</td>';
-
 		print '<td align="left">' . dol_trunc($obj->label, 24) . '</td>';
-//TODO ADJUST DESCRIPTION SIZE
-//      print '<td align="left">' . $obj->description . '</td>';
-        //TODO: we shoul set a user defined value to adjust user square / wide screen size
+		// TODO ADJUST DESCRIPTION SIZE
+		// print '<td align="left">' . $obj->description . '</td>';
+        // TODO: we shoul set a user defined value to adjust user square / wide screen size
         $trunclengh = defined('ACCOUNTING_LENGTH_DESCRIPTION') ? ACCOUNTING_LENGTH_DESCRIPTION : 32;
         print '<td style="' . $code_sell_p_l_differ . '">' . nl2br(dol_trunc($obj->description, $trunclengh)) . '</td>';
-
-        //acountingaccount buy
+		
+		// acountingaccount buy
+		
 		if ($accounting_product_mode == 'ACCOUNTANCY_BUY') {
 			print '<td align="left">' . $obj->accountancy_code_buy . '</td>';
 			// TODO: replace by select
@@ -381,7 +381,7 @@ if ($result) {
         print '<td><a href="./card.php?id=' . $obj->rowid . '">';
         print img_edit();
         print '</a></td>';
-        //Checkbox select
+        // Checkbox select
         print '<td align="center">';
 		print '<input type="checkbox" name="chk_prod[]" value="' . $obj->rowid . '"/></td>';
 

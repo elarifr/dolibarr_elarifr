@@ -91,7 +91,7 @@ $idpays = $p[0];
 $sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client,";
 $sql .= " fd.rowid as fdid, fd.description, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql .= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
-$sql .= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte, ";
+$sql .= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte,";
 $sql .= " fd.situation_percent,ct.accountancy_code_sell as account_tva";
 $sql .= " FROM " . MAIN_DB_PREFIX . "facturedet as fd";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "product as p ON p.rowid = fd.fk_product";
@@ -150,9 +150,9 @@ if ($result) {
 		if ($obj->type==Facture::TYPE_SITUATION) {
 			// Avoid divide by 0
 			if ($obj->situation_percent == 0) {
-			$situation_ratio = 0;
-		} else {
-			$situation_ratio = ($obj->situation_percent - $prev_progress) / $obj->situation_percent;
+				$situation_ratio = 0;
+			} else {
+				$situation_ratio = ($obj->situation_percent - $prev_progress) / $obj->situation_percent;
 			}
 		} else {
 			$situation_ratio = 1;

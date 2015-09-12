@@ -58,32 +58,20 @@ if ($page < 0) $page = 0;
 
 $pageprev = $page - 1;
 $pagenext = $page + 1;
-if (! empty($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION)) 
-{
+if (! empty($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION)) {
 	$limit = $conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION;
-} 
-else if ($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION <= 0) 
-{
+} else if ($conf->global->ACCOUNTING_LIMIT_LIST_VENTILATION <= 0) {
 	$limit = $conf->liste_limit;
-} 
-else 
-{
+} else {
 	$limit = $conf->liste_limit;
 }
 $offset = $limit * $page;
 
-// TODO : remove comment
-//elarifr we can not use only
-//$sql .= " ORDER BY l.rowid";
-// f.datef will order like FA08 FA09 FA10 FA05 FA06 FA07 FA04...
-// f.facnumber will not order properly invoice / avoir / accompte you can have All AC then All AV and all FA
-// l.rowid when an invoice is edited rowid are added at end of table & facturedet.rowid are not ordered
+
 if (! $sortfield) $sortfield="f.datef, f.facnumber, l.rowid";
 
-if (! $sortorder) 
-{
-	if ($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_DONE > 0) 
-    {
+if (! $sortorder) {
+	if ($conf->global->ACCOUNTING_LIST_SORT_VENTILATION_DONE > 0) {
 		$sortorder = " DESC ";
 	}
 }
@@ -294,8 +282,8 @@ if ($result)
 		print '<td align="right">' . price($objp->total_ht) . '</td>';
 		print '<td align="center">' . price($objp->tva_tx) . '</td>';
 		print '<td align="center">' . $codecompta . '</td>';
-		print '<td align="center">' . $objp->rowid . '</td>';
-		print '<td><a href="./card.php?id=' . $objp->rowid . '">';
+		print '<td align="right">' . $objp->rowid . '</td>';
+		print '<td align="left"><a href="./card.php?id=' . $objp->rowid . '">';
 		print img_edit();
 		print '</a></td>';
 		

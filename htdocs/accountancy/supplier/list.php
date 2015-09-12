@@ -24,14 +24,13 @@
  * \ingroup		Accounting Expert
  * \brief		Ventilation page from suppliers invoices
  */
-
 require '../../main.inc.php';
 
 // Class
-require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.facture.class.php';
-require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
-require_once DOL_DOCUMENT_ROOT.'/accountancy/class/html.formventilation.class.php';
-require_once DOL_DOCUMENT_ROOT.'/accountancy/class/accountingaccount.class.php';
+require_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/accountancy/class/html.formventilation.class.php';
+require_once DOL_DOCUMENT_ROOT . '/accountancy/class/accountingaccount.class.php';
 
 // Langs
 $langs->load("compta");
@@ -48,17 +47,17 @@ $mesCasesCochees = GETPOST('mesCasesCochees', 'array');
 
 // Search Getpost
 $search_invoice = GETPOST('search_invoice', 'alpha');
-$search_ref     = GETPOST('search_ref','alpha');
-$search_label   = GETPOST('search_label','alpha');
-$search_desc    = GETPOST('search_desc','alpha');
+$search_ref = GETPOST('search_ref', 'alpha');
+$search_label = GETPOST('search_label', 'alpha');
+$search_desc = GETPOST('search_desc', 'alpha');
 $search_amount = GETPOST('search_amount', 'alpha');
 $search_account = GETPOST('search_account', 'alpha');
 $search_vat = GETPOST('search_vat', 'alpha');
 $btn_ventil = GETPOST('ventil', 'alpha');
 
 // Getpost Order and column and limit page
-$sortfield = GETPOST('sortfield','alpha');
-$sortorder = GETPOST('sortorder','alpha');
+$sortfield = GETPOST('sortfield', 'alpha');
+$sortorder = GETPOST('sortorder', 'alpha');
 
 $page = GETPOST('page');
 if ($page < 0)
@@ -89,12 +88,12 @@ if (! $user->rights->accounting->ventilation->dispatch)
 
 $formventilation = new FormVentilation($db);
 
-//Defaut AccountingAccount RowId Product / Service
-//at this time ACCOUNTING_SERVICE_SOLD_ACCOUNT & ACCOUNTING_PRODUCT_SOLD_ACCOUNT are account number not accountingacount rowid
-//so we need to get those default value rowid first
+// Defaut AccountingAccount RowId Product / Service
+// at this time ACCOUNTING_SERVICE_SOLD_ACCOUNT & ACCOUNTING_PRODUCT_SOLD_ACCOUNT are account number not accountingacount rowid
+// so we need to get those default value rowid first
 $accounting = new AccountingAccount($db);
 
-//TODO: we should need to check if result is a really exist accountaccount rowid.....
+// TODO: we should need to check if result is a really exist accountaccount rowid.....
 $aarowid_s = $accounting->fetch('', ACCOUNTING_SERVICE_BUY_ACCOUNT);
 $aarowid_p = $accounting->fetch('', ACCOUNTING_PRODUCT_BUY_ACCOUNT);
 
@@ -114,7 +113,7 @@ if (GETPOST("button_removefilter_x") || GETPOST("button_removefilter")) // Both 
  */
 llxHeader('', $langs->trans("Ventilation"));
 
-print  '<script type="text/javascript">
+print '<script type="text/javascript">
 			$(function () {
 				$(\'#select-all\').click(function(event) {
 				    // Iterate each checkbox
@@ -140,25 +139,25 @@ if ($action == 'ventil' && !empty($btn_ventil)) {
 		print '<div><font color="red">' . count($_POST["mesCasesCochees"]) . ' ' . $langs->trans("SelectedLines") . '</font></div>';
 		$mesCodesVentilChoisis = $codeventil;
 		$cpt = 0;
-
+		
 		foreach ( $mesCasesCochees as $maLigneCochee ) {
 			// print '<div><font color="red">id selectionnee : '.$monChoix."</font></div>";
 			$maLigneCourante = explode("_", $maLigneCochee);
 			$monId = $maLigneCourante[0];
 			$monNumLigne = $maLigneCourante[1];
 			$monCompte = $mesCodesVentilChoisis[$monNumLigne];
-
+			
 			$sql = " UPDATE " . MAIN_DB_PREFIX . "facture_fourn_det";
 			$sql .= " SET fk_code_ventilation = " . $monCompte;
 			$sql .= " WHERE rowid = " . $monId;
-
+			
 			dol_syslog('accountancy/supplier/list.php:: sql=' . $sql, LOG_DEBUG);
 			if ($db->query($sql)) {
 				print '<div><font color="green">' . $langs->trans("Lineofinvoice") . ' ' . $monId . ' ' . $langs->trans("VentilatedinAccount") . ' : ' . $monCompte . '</font></div>';
 			} else {
 				print '<div><font color="red">' . $langs->trans("ErrorDB") . ' : ' . $langs->trans("Lineofinvoice") . ' ' . $monId . ' ' . $langs->trans("NotVentilatedinAccount") . ' : ' . $monCompte . '<br/> <pre>' . $sql . '</pre></font></div>';
 			}
-
+			
 			$cpt ++;
 		}
 	} else {
@@ -183,7 +182,7 @@ $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "product as p ON p.rowid = l.fk_product
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accountingaccount as aa ON p.accountancy_code_buy = aa.account_number";
 $sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "accounting_system as accsys ON accsys.pcg_version = aa.fk_pcg_version";
 $sql .= " WHERE f.fk_statut > 0 AND fk_code_ventilation <= 0";
-$sql .= " AND (accsys.rowid='".$conf->global->CHARTOFACCOUNTS."' OR p.accountancy_code_buy IS NULL OR p.accountancy_code_buy = '' )";
+$sql .= " AND (accsys.rowid='" . $conf->global->CHARTOFACCOUNTS . "' OR p.accountancy_code_buy IS NULL OR p.accountancy_code_buy = '' )";
 
 // Add search filter like
 if (strlen(trim($search_invoice))) {
@@ -207,12 +206,11 @@ if (strlen(trim($search_account))) {
 if (strlen(trim($search_vat))) {
 	$sql .= " AND (l.tva_tx like '" . $search_vat . "%')";
 }
-
 if (! empty($conf->multicompany->enabled)) {
 	$sql .= " AND f.entity IN (" . getEntity("facture_fourn", 1) . ")";
 }
 
-$sql.= $db->order($sortfield,$sortorder);
+$sql .= $db->order($sortfield, $sortorder);
 
 $sql .= $db->plimit($limit + 1, $offset);
 
@@ -221,30 +219,30 @@ $result = $db->query($sql);
 if ($result) {
 	$num_lines = $db->num_rows($result);
 	$i = 0;
-
+	
 	// TODO : print_barre_liste always use $conf->liste_limit and do not care about custom limit in list...
 	print_barre_liste($langs->trans("InvoiceLines"), $page, $_SERVER["PHP_SELF"], "", $sortfield, $sortorder, '', $num_lines);
-
-	print '<br><b>' . $langs->trans("DescVentilTodoSupplier") . '</b><br>&nbsp;'';
+	
+	print '<br><b>' . $langs->trans("DescVentilTodoSupplier") . '</b><br />&nbsp;'';
 	print_liste_field_titre($langs->trans("Date"), $_SERVER["PHP_SELF"],"f.datef","",$param,'',$sortfield,$sortorder);	
 	print '&nbsp;&nbsp;';
 	print_liste_field_titre($langs->trans("RowId"), $_SERVER["PHP_SELF"],"l.rowid","",$param,'',$sortfield,$sortorder);	
 	
 	print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post">' . "\n";
 	print '<input type="hidden" name="action" value="ventil">';
-
+	
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
-	print_liste_field_titre($langs->trans("Invoice"), $_SERVER["PHP_SELF"],"f.ref","",$param,'',$sortfield,$sortorder);
-	print_liste_field_titre($langs->trans("Ref"), $_SERVER["PHP_SELF"],"p.ref","",$param,'',$sortfield,$sortorder);
-	print_liste_field_titre($langs->trans("Label"), $_SERVER["PHP_SELF"],"p.label","",$param,'',$sortfield,$sortorder);
-	print_liste_field_titre($langs->trans("Description"), $_SERVER["PHP_SELF"],"l.description","",$param,'',$sortfield,$sortorder);
+	print_liste_field_titre($langs->trans("Invoice"), $_SERVER["PHP_SELF"], "f.ref", "", $param, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans("Ref"), $_SERVER["PHP_SELF"], "p.ref", "", $param, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans("Label"), $_SERVER["PHP_SELF"], "p.label", "", $param, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans("Description"), $_SERVER["PHP_SELF"], "l.description", "", $param, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans("Amount"), $_SERVER["PHP_SELF"], "l.total_ht", "", $param, 'align="center"', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans("VATRate"), $_SERVER["PHP_SELF"], "l.tva_tx", "", $param, 'align="center"', $sortfield, $sortorder);
-	print_liste_field_titre($langs->trans("AccountAccounting"),'','','','','align="center"');
-	print_liste_field_titre($langs->trans("IntoAccount"),'','','','','align="center"');
+	print_liste_field_titre($langs->trans("AccountAccounting"), '', '', '', '', 'align="center"');
+	print_liste_field_titre($langs->trans("IntoAccount"), '', '', '', '', 'align="center"');
 	print_liste_field_titre('');
-	print_liste_field_titre($langs->trans("Ventilate") . '<br><label id="select-all">'.$langs->trans('All').'</label>/<label id="unselect-all">'.$langs->trans('None').'</label>','','','','','align="center"');
+	print_liste_field_titre($langs->trans("Ventilate") . '<br><label id="select-all">' . $langs->trans('All') . '</label>/<label id="unselect-all">' . $langs->trans('None') . '</label>', '', '', '', '', 'align="center"');
 	print "</tr>\n";
 	
 	print '<tr class="liste_titre">';
@@ -257,16 +255,16 @@ if ($result) {
 	print '<td class="liste_titre" align="center">&nbsp;</td>';
 	print '<td class="liste_titre">&nbsp;</td>';
 	print '<td align="right" colspan="2" class="liste_titre">';
-	print '<input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'search.png','','',1).'" name="button_search" value="'.dol_escape_htmltag($langs->trans("Search")).'" title="'.dol_escape_htmltag($langs->trans("Search")).'">';
+	print '<input type="image" class="liste_titre" src="' . img_picto($langs->trans("Search"), 'search.png', '', '', 1) . '" name="button_search" value="' . dol_escape_htmltag($langs->trans("Search")) . '" title="' . dol_escape_htmltag($langs->trans("Search")) . '">';
 	print '&nbsp;';
-	print '<input type="image" class="liste_titre" src="'.img_picto($langs->trans("Search"),'searchclear.png','','',1).'" name="button_removefilter" value="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'" title="'.dol_escape_htmltag($langs->trans("RemoveFilter")).'">';
+	print '<input type="image" class="liste_titre" src="' . img_picto($langs->trans("Search"), 'searchclear.png', '', '', 1) . '" name="button_removefilter" value="' . dol_escape_htmltag($langs->trans("RemoveFilter")) . '" title="' . dol_escape_htmltag($langs->trans("RemoveFilter")) . '">';
 	print '</td>';
 	print '</tr>';
 	
 	$facturefourn_static = new FactureFournisseur($db);
 	$productfourn_static = new ProductFournisseur($db);
 	$form = new Form($db);
-
+	
 	$var = True;
 	while ( $i < min($num_lines, $limit) ) {
 		$objp = $db->fetch_object($result);
@@ -281,7 +279,7 @@ if ($result) {
 		$code_buy_p_l_differ = '';
 		
 		$code_buy_p_notset = '';
-
+		
 		$objp->aarowid_suggest = $objp->aarowid;
 		if (! empty($objp->code_buy)) {
 			$objp->code_buy_p = $objp->code_buy;
@@ -301,21 +299,21 @@ if ($result) {
 			if ($objp->aarowid == '')
 				$objp->aarowid_suggest = $aarowid_s;
 		} elseif ($objp->type_l == 0) {
-				$objp->code_buy_l = (! empty($conf->global->ACCOUNTING_PRODUCT_BUY_ACCOUNT) ? $conf->global->ACCOUNTING_PRODUCT_BUY_ACCOUNT : $langs->trans("CodeNotDef"));
-				if ($objp->aarowid == '') 
-					$objp->aarowid_suggest = $aarowid_p;
-			}
+			$objp->code_buy_l = (! empty($conf->global->ACCOUNTING_PRODUCT_BUY_ACCOUNT) ? $conf->global->ACCOUNTING_PRODUCT_BUY_ACCOUNT : $langs->trans("CodeNotDef"));
+			if ($objp->aarowid == '')
+				$objp->aarowid_suggest = $aarowid_p;
+		}
 		
 		if ($objp->code_buy_l != $objp->code_buy_p)
 			$code_buy_p_l_differ = 'color:red';
 		
 		print "<tr $bc[$var]>";
-
+		
 		// Ref Invoice
 		$facturefourn_static->ref = $objp->ref;
 		$facturefourn_static->id = $objp->facid;
 		print '<td>' . $facturefourn_static->getNomUrl(1) . '</td>';
-
+		
 		// Ref Supplier Invoice
 		$productfourn_static->ref = $objp->product_ref;
 		$productfourn_static->id = $objp->product_id;
@@ -326,32 +324,32 @@ if ($result) {
 		else
 			print '&nbsp;';
 		print '</td>';
-
+		
 		print '<td style="' . $code_buy_p_l_differ . '">' . dol_trunc($objp->product_label, 24) . '</td>';
-
+		
 		// TODO: we should set a user defined value to adjust user square / wide screen size
 		$trunclength = defined('ACCOUNTING_LENGTH_DESCRIPTION') ? ACCOUNTING_LENGTH_DESCRIPTION : 32;
 		print '<td style="' . $code_buy_p_l_differ . '">' . nl2br(dol_trunc($objp->description, $trunclength)) . '</td>';
-
+		
 		print '<td align="right">';
 		print price($objp->price);
 		print '</td>';
-
-		if ($objp->vat_tx_l != $objp->vat_tx_p) 
+		
+		if ($objp->vat_tx_l != $objp->vat_tx_p)
 			$code_vat_differ = 'font-weight:bold; text-decoration:blink; color:red';
 		print '<td style="' . $code_vat_differ . '" align="center">';
 		print price($objp->tva_tx_line);
 		print '</td>';
 		
 		print '<td align="center" style="' . $code_buy_p_notset . '">';
-		//if not same kind of product_type stored in product & facturedt we display both account and let user choose
+		// if not same kind of product_type stored in product & facturedt we display both account and let user choose
 		if ($objp->code_buy_l == $objp->code_buy_p) {
 			print $objp->code_buy_l;
 		} else {
-			print 'lines='.$objp->code_buy_l . '<br />product=' . $objp->code_buy_p;
+			print 'lines=' . $objp->code_buy_l . '<br />product=' . $objp->code_buy_p;
 		}
 		print '</td>';
-
+		
 		// Colonne choix du compte
 		print '<td align="center">';
 		print $formventilation->select_account($objp->aarowid_suggest, 'codeventil[]', 1);
@@ -361,11 +359,11 @@ if ($result) {
 		print '<td align="center">';
 		print '<input type="checkbox" name="mesCasesCochees[]" value="' . $objp->rowid . "_" . $i . '"' . ($objp->aarowid ? "checked" : "") . '/>';
 		print '</td>';
-
+		
 		print "</tr>";
 		$i ++;
 	}
-
+	
 	print '</table>';
 	print '<br><div align="center"><input type="submit" class="butAction" value="' . $langs->trans("Ventilate") . '" name="ventil" ></div>';
 	print '</form>';
