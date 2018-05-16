@@ -17,6 +17,14 @@
  * Output code for the filemanager
  * $module must be defined ('ecm', 'medias', ...)
  */
+
+// Protection to avoid direct call of template
+if (empty($conf) || ! is_object($conf))
+{
+	print "Error, template page filemanager.tpl.php can't be called as URL";
+	exit;
+}
+
 ?>
 
 <!-- BEGIN PHP TEMPLATE core/tpl/filemanager.tpl.php -->
@@ -29,7 +37,7 @@ require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
 if (empty($module)) $module='ecm';
 
 $permtoadd = 0;
-$permtoupload = 1;
+$permtoupload = 0;
 if ($module == 'ecm')
 {
 	$permtoadd = $user->rights->ecm->setup;
@@ -37,8 +45,8 @@ if ($module == 'ecm')
 }
 if ($module == 'medias')
 {
-	$permtoadd = ($user->rights->mailing->creer || $user->rights->website->setup);
-	$permtoupload = ($user->rights->mailing->creer || $user->rights->website->setup);
+	$permtoadd = ($user->rights->mailing->creer || $user->rights->website->write);
+	$permtoupload = ($user->rights->mailing->creer || $user->rights->website->write);
 }
 
 
@@ -66,7 +74,7 @@ print '<div class="inline-block toolbarbutton centpercent">';
 
 	if ($permtoadd)
 	{
-	    print '<a href="'.DOL_URL_ROOT.'/ecm/docdir.php?action=create&module='.urlencode($module).($website?'&website='.$website:'').($pageid?'&pageid='.$pageid:'').'&backtopage='.urlencode($_SERVER["PHP_SELF"].'?file_manager=1&website='.$website.'&pageid='.$pageid).'" class="inline-block valignmiddle toolbarbutton" title="'.dol_escape_htmltag($langs->trans('ECMAddSection')).'">';
+	    print '<a href="'.DOL_URL_ROOT.'/ecm/dir_add_card.php?action=create&module='.urlencode($module).($website?'&website='.$website:'').($pageid?'&pageid='.$pageid:'').'&backtopage='.urlencode($_SERVER["PHP_SELF"].'?file_manager=1&website='.$website.'&pageid='.$pageid).'" class="inline-block valignmiddle toolbarbutton" title="'.dol_escape_htmltag($langs->trans('ECMAddSection')).'">';
 	    print '<img class="toolbarbutton" border="0" src="'.DOL_URL_ROOT.'/theme/common/folder-new.png">';
 	    print '</a>';
 	}
@@ -196,7 +204,7 @@ if (empty($action) || $action == 'editfile' || $action == 'file_manager' || preg
 
 $mode='noajax';
 if (empty($url)) $url=DOL_URL_ROOT.'/ecm/index.php';
-include_once DOL_DOCUMENT_ROOT.'/core/ajax/ajaxdirpreview.php';
+include DOL_DOCUMENT_ROOT.'/core/ajax/ajaxdirpreview.php';
 
 
 // End right panel

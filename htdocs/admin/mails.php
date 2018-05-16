@@ -70,6 +70,7 @@ complete_substitutions_array($substitutionarrayfortest, $langs);
 if ($action == 'update' && empty($_POST["cancel"]))
 {
 	dolibarr_set_const($db, "MAIN_DISABLE_ALL_MAILS",     GETPOST("MAIN_DISABLE_ALL_MAILS"),'chaine',0,'',$conf->entity);
+	dolibarr_set_const($db, "MAIN_MAIL_FORCE_SENDTO",     GETPOST("MAIN_MAIL_FORCE_SENDTO"),'chaine',0,'',$conf->entity);
 	// Send mode parameters
 	dolibarr_set_const($db, "MAIN_MAIL_SENDMODE",         GETPOST("MAIN_MAIL_SENDMODE"),'chaine',0,'',$conf->entity);
 	dolibarr_set_const($db, "MAIN_MAIL_SMTP_PORT",        GETPOST("MAIN_MAIL_SMTP_PORT"),'chaine',0,'',$conf->entity);
@@ -237,6 +238,11 @@ if ($action == 'edit')
 
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_DISABLE_ALL_MAILS").'</td><td>';
 	print $form->selectyesno('MAIN_DISABLE_ALL_MAILS',$conf->global->MAIN_DISABLE_ALL_MAILS,1);
+	print '</td></tr>';
+
+	// Force e-mail recipient
+	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_FORCE_SENDTO").'</td><td>';
+	print '<input class="flat" name="MAIN_MAIL_FORCE_SENDTO" size="32" value="' . (! empty($conf->global->MAIN_MAIL_FORCE_SENDTO)?$conf->global->MAIN_MAIL_FORCE_SENDTO:'') . '" />';
 	print '</td></tr>';
 
 	// Separator
@@ -478,6 +484,11 @@ else
 
 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_DISABLE_ALL_MAILS").'</td><td>'.yn($conf->global->MAIN_DISABLE_ALL_MAILS).'</td></tr>';
 
+	// Force e-mail recipient
+	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_FORCE_SENDTO").'</td><td>'.$conf->global->MAIN_MAIL_FORCE_SENDTO;
+	if (! empty($conf->global->MAIN_MAIL_FORCE_SENDTO) && ! isValidEmail($conf->global->MAIN_MAIL_FORCE_SENDTO)) print img_warning($langs->trans("ErrorBadEMail"));
+	print '</td></tr>';
+
 	// Separator
 
 	print '<tr class="oddeven"><td colspan="2">&nbsp;</td></tr>';
@@ -587,9 +598,13 @@ else
 	}
 	else dol_print_error($db);
 
-	print '<tr '.$bc[$var?1:0].'><td>'.$langs->trans('MAIN_MAIL_DEFAULT_FROMTYPE').'</td>';
+	print '<tr class="oddeven"><td>'.$langs->trans('MAIN_MAIL_DEFAULT_FROMTYPE').'</td>';
 	print '<td>';
-	if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'user')
+	if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'robot')
+	{
+		print $langs->trans('RobotEmail');
+	}
+	else if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'user')
 	{
 		print $langs->trans('UserEmail');
 	}
@@ -640,25 +655,7 @@ else
 	dol_fiche_end();
 
 
-	if ($conf->global->MAIN_MAIL_SENDMODE == 'mail' && empty($conf->global->MAIN_FIX_FOR_BUGGED_MTA))
-	{
-		print '<br>';
-		/*
-	    // Warning 1
-    	if ($linuxlike)
-    	{
-    		$sendmailoption=ini_get('mail.force_extra_parameters');
-    		if (empty($sendmailoption) || ! preg_match('/ba/',$sendmailoption))
-    		{
-    			print info_admin($langs->trans("SendmailOptionNotComplete"));
-    		}
-    	}*/
-		// Warning 2
-   		print info_admin($langs->trans("SendmailOptionMayHurtBuggedMTA"));
-	}
-
-
-	// Boutons actions
+	// Actions button
 	print '<div class="tabsAction">';
 
 	print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=edit">'.$langs->trans("Modify").'</a>';
@@ -684,6 +681,22 @@ else
 
 	print '</div>';
 
+
+	if ($conf->global->MAIN_MAIL_SENDMODE == 'mail' && empty($conf->global->MAIN_FIX_FOR_BUGGED_MTA))
+	{
+		/*
+		 // Warning 1
+		 if ($linuxlike)
+		 {
+		 $sendmailoption=ini_get('mail.force_extra_parameters');
+		 if (empty($sendmailoption) || ! preg_match('/ba/',$sendmailoption))
+		 {
+		 print info_admin($langs->trans("SendmailOptionNotComplete"));
+		 }
+		 }*/
+		// Warning 2
+		print info_admin($langs->trans("SendmailOptionMayHurtBuggedMTA"));
+	}
 
 	if ($conf->global->MAIN_MAIL_SENDMODE == 'mail' && ! in_array($action, array('testconnect', 'test', 'testhtml')))
 	{
@@ -724,10 +737,13 @@ else
 		// Cree l'objet formulaire mail
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
 		$formmail = new FormMail($db);
+		$formmail->trackid=(($action == 'testhtml')?"testhtml":"test");
 		$formmail->fromname = (isset($_POST['fromname'])?$_POST['fromname']:$conf->global->MAIN_MAIL_EMAIL_FROM);
 		$formmail->frommail = (isset($_POST['frommail'])?$_POST['frommail']:$conf->global->MAIN_MAIL_EMAIL_FROM);
-		$formmail->trackid=(($action == 'testhtml')?"testhtml":"test");
-		$formmail->withfromreadonly=0;
+		$formmail->fromid=$user->id;
+		$formmail->fromalsorobot=1;
+		$formmail->fromtype=(GETPOST('fromtype')?GETPOST('fromtype'):(!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE)?$conf->global->MAIN_MAIL_DEFAULT_FROMTYPE:'user'));
+		$formmail->withfromreadonly=1;
 		$formmail->withsubstit=0;
 		$formmail->withfrom=1;
 		$formmail->witherrorsto=1;

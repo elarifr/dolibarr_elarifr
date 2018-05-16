@@ -38,7 +38,7 @@ class ExpenseReport extends CommonObject
     var $fk_element = 'fk_expensereport';
     var $picto = 'trip';
 
-    var $lignes=array();
+    var $lines=array();
 
     public $date_debut;
 
@@ -455,7 +455,7 @@ class ExpenseReport extends CommonObject
         $sql.= " d.fk_statut as status, d.fk_c_paiement,";
         $sql.= " dp.libelle as libelle_paiement, dp.code as code_paiement";                             // INNER JOIN paiement
         $sql.= " FROM ".MAIN_DB_PREFIX.$this->table_element." as d";
-        $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paiement as dp ON d.fk_c_paiement = dp.id AND dp.entity = " . getEntity('c_paiement');
+        $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."c_paiement as dp ON d.fk_c_paiement = dp.id AND dp.entity IN (".getEntity('c_paiement').")";
         if ($ref) $sql.= " WHERE d.ref = '".$this->db->escape($ref)."'";
         else $sql.= " WHERE d.rowid = ".$id;
         //$sql.= $restrict;
@@ -1934,7 +1934,7 @@ class ExpenseReport extends CommonObject
 
             $tmp = calcul_price_total($qty, $value_unit, 0, $vatrate, 0, 0, 0, 'TTC', 0, $type, $seller, $localtaxes_type);
 
-            // calcul de tous les totaux de la ligne
+            // calcul total of line
             //$total_ttc  = price2num($qty*$value_unit, 'MT');
 
             $tx_tva = $vatrate / 100;
@@ -2326,6 +2326,41 @@ class ExpenseReport extends CommonObject
         else
             return ($this->datevalid?$this->datevalid:$this->date_valid) < ($now - $conf->expensereport->payment->warning_delay);
     }
+
+    /**
+     *	Return if an expensereport was dispatched into bookkeeping
+     *
+     *	@return     int         <0 if KO, 0=no, 1=yes
+     */
+    public function getVentilExportCompta()
+    {
+    	$alreadydispatched = 0;
+
+    	$type = 'expense_report';
+
+    	$sql = " SELECT COUNT(ab.rowid) as nb FROM ".MAIN_DB_PREFIX."accounting_bookkeeping as ab WHERE ab.doc_type='".$type."' AND ab.fk_doc = ".$this->id;
+    	$resql = $this->db->query($sql);
+    	if ($resql)
+    	{
+    		$obj = $this->db->fetch_object($resql);
+    		if ($obj)
+    		{
+    			$alreadydispatched = $obj->nb;
+    		}
+    	}
+    	else
+    	{
+    		$this->error = $this->db->lasterror();
+    		return -1;
+    	}
+
+    	if ($alreadydispatched)
+    	{
+    		return 1;
+    	}
+    	return 0;
+    }
+
 }
 
 
@@ -2565,7 +2600,7 @@ class ExpenseReportLine
 
         $this->db->begin();
 
-        // Mise a jour ligne en base
+        // Update line in database
         $sql = "UPDATE ".MAIN_DB_PREFIX."expensereport_det SET";
         $sql.= " comments='".$this->db->escape($this->comments)."'";
         $sql.= ",value_unit=".$this->value_unit;

@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FI8TNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -37,7 +37,7 @@ if (! defined('NOREQUIREAJAX'))   define('NOREQUIREAJAX','1');
 
 // Colors
 $colorbackhmenu1='80,90,120';      // topmenu
-$colorbackvmenu1='255,255,255';      // vmenu
+$colorbackvmenu1='248,248,248';      // vmenu
 $colortopbordertitle1='120,120,120';    // top border of title
 $colorbacktitle1='230,230,233';      // title of tables,list
 $colorbacktabcard1='255,255,255';  // card
@@ -261,7 +261,10 @@ a:hover { text-decoration: underline; color: rgb(<?php print $colortextlink; ?>)
 a.commonlink { color: rgb(<?php print $colortextlink; ?>) !important; text-decoration: none; }
 th.liste_titre a div div:hover, th.liste_titre_sel a div div:hover { text-decoration: underline; }
 input, input.flat, textarea, textarea.flat, form.flat select, select, select.flat, .dataTables_length label select {
-    background-color: #FFF;
+	background-color: #FFF;
+}
+select.vmenusearchselectcombo {
+	background-color: unset;
 }
 
 input.select2-input {
@@ -281,15 +284,13 @@ input[type=submit] {
 	margin-left: 5px;
 }
 input, input.flat, form.flat select, select, select.flat, .dataTables_length label select {
-	<?php if (empty($conf->global->THEME_ELDY_SHOW_BORDER_INPUT))
-	print "border: none;"
-	?>
+	border: none;
 }
 input, input.flat, textarea, textarea.flat, form.flat select, select, select.flat, .dataTables_length label select {
     font-family: <?php print $fontlist ?>;
     outline: none;
     margin: 0px 0px 0px 0px;
-    border-bottom: solid 1px rgba(0,0,0,.2);
+    border<?php echo empty($conf->global->THEME_HIDE_BORDER_ON_INPUT)?'-bottom':''; ?>: solid 1px rgba(0,0,0,.2);
 }
 
 input {
@@ -348,7 +349,7 @@ input.buttongen {
 	vertical-align: middle;
 }
 input.buttonpayment {
-	min-width: 300px;
+	min-width: 320px;
 	margin-bottom: 15px;
 	background-image: none;
 	line-height: 24px;
@@ -356,8 +357,9 @@ input.buttonpayment {
 	background: none;
 	padding-left: 30px;
 	text-align: <?php echo $left; ?>;
-	border: 2px solid #ccc;
+	border: 1px solid #ddd;
 	background-color: #eee;
+	white-space: normal;
 }
 input.buttonpaymentcb {
 	background-image: url(<?php echo dol_buildpath($path.'/theme/common/credit_card.png',1) ?>);
@@ -403,6 +405,7 @@ td.actionbuttons a {
 }
 select.flat, form.flat select {
 	font-weight: normal;
+	font-size: unset;
     height: 2em;
 }
 .optionblue {
@@ -456,6 +459,9 @@ fieldset { border: 1px solid #AAAAAA !important; }
 .trextrafieldseparator td {
     border-bottom: 2px solid rgb(120,120,120) !important;
 }
+input#onlinepaymenturl, input#directdownloadlink {
+	opacity: 0.7;
+}
 
 hr { border: 0; border-top: 1px solid #ccc; }
 
@@ -472,7 +478,6 @@ hr { border: 0; border-top: 1px solid #ccc; }
 	text-align: center;
 	cursor: pointer;
 	text-decoration: none !important;
-	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
 	background-color: #f5f5f5;
 	background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
 	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
@@ -581,6 +586,12 @@ textarea.centpercent {
 .nowraponall {
 	white-space: nowrap;
 }
+.wordwrap {
+	word-wrap: break-word;
+}
+.wordbreak {
+	word-break: break-all;
+}
 .nobold {
 	font-weight: normal !important;
 }
@@ -614,12 +625,12 @@ textarea.centpercent {
 	padding: 2px 5px;
 	font-size: 10px;
 	font-weight: 700;
-	line-height: 0.9em;
+	line-height: 1em;
 	color: #fff;
 	text-align: center;
 	white-space: nowrap;
-	vertical-align: baseline;
-	background-color: #777;
+	vertical-align: text-bottom;
+	background-color: #aaa;
 	border-radius: 10px;
 }
 .borderrightlight
@@ -647,8 +658,17 @@ div.divsearchfield {
 div.confirmmessage {
 	padding-top: 6px;
 }
-div.myavailability {
-	padding-top: 6px;
+ul.attendees {
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 0;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+ul.attendees li {
+	list-style-type: none;
+	padding-top:1px;
+	padding-bottom:1px;
 }
 .googlerefreshcal {
 	padding-top: 4px;
@@ -666,6 +686,9 @@ div.myavailability {
 .selectlimit, .marginrightonly {
 	margin-right: 10px !important;
 }
+.marginleftonly {
+	margin-left: 10px !important;
+}
 .selectlimit, .selectlimit:focus {
     border-left: none !important;
     border-top: none !important;
@@ -681,6 +704,12 @@ div.myavailability {
 /* using a tdoverflowxxx make the min-width not working */
 .tdoverflow {
     max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tdoverflowmax50 {			/* For tdoverflow, the max-midth become a minimum ! */
+    max-width: 50px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -765,7 +794,7 @@ div.myavailability {
     min-height: 0.01%;
 }
 .div-table-responsive {
-    line-height: 100%;
+    line-height: 120%;
 }
 /* Style used for full page tables with field selector and no content after table (priority before previous for such tables) */
 div.fiche>form>div.div-table-responsive, div.fiche>form>div.div-table-responsive-no-min {
@@ -833,6 +862,7 @@ select.selectarrowonleft option {
     .minwidth400imp { min-width: 400px !important; }
     .minwidth500imp { min-width: 500px !important; }
 }
+.width25  { width: 25px; }
 .width50  { width: 50px; }
 .width100 { width: 100px; }
 .width200 { width: 200px; }
@@ -899,6 +929,9 @@ select.selectarrowonleft option {
 	body {
 		font-size: <?php print $fontsize+3; ?>px;
 	}
+	div.refidno {
+		font-size: <?php print $fontsize+3; ?>px !important;
+	}
 }
 
 /* Force values for small screen 570 */
@@ -906,6 +939,9 @@ select.selectarrowonleft option {
 {
 	body {
 		font-size: <?php print $fontsize+3; ?>px;
+	}
+	div.refidno {
+		font-size: <?php print $fontsize+3; ?>px !important;
 	}
 
 	.divmainbodylarge { margin-left: 20px !important; margin-right: 20px !important; }
@@ -920,7 +956,8 @@ select.selectarrowonleft option {
 		    margin-top: <?php print ($dol_hide_topmenu?'12':'6'); ?>px !important;
 	}
 	div.titre {
-		line-height: 2em;
+		margin-top: 12px;
+		/* line-height: 2em; */
 	}
     .border tbody tr, .border tbody tr td, div.tabBar table.border tr, div.tabBar table.border tr td, div.tabBar div.border .table-border-row, div.tabBar div.border .table-key-border-col, div.tabBar div.border .table-val-border-col {
     	height: 40px !important;
@@ -990,6 +1027,13 @@ select.selectarrowonleft option {
    	}
 	div.statusref img {
     	padding-right: 3px !important;
+   	}
+	div.statusrefbis {
+    	padding-right: 3px !important;
+   	}
+
+   	input.buttonpayment {
+		min-width: 300px;
    	}
 }
 .linkobject { cursor: pointer; }
@@ -1072,6 +1116,10 @@ div.blockvmenuend, div.blockvmenubookmarks {
 div.vmenu, td.vmenu {
 	padding-right: 10px !important;
 }
+.blockvmenu .menu_titre {
+    margin-top: 4px;
+    margin-bottom: 3px;
+}
 
 /* Try responsive even not on smartphone
 #id-container {
@@ -1117,16 +1165,16 @@ div.vmenu, td.vmenu {
 	padding-right: 6px !important;
 }
 div.fiche {
-	margin-<?php print $left; ?>: 6px !important;
-	margin-<?php print $right; ?>: 6px !important;
+	margin-<?php print $left; ?>: 9px !important;
+	margin-<?php print $right; ?>: 10px !important;
 }
 <?php } ?>
 
 
 
 div.fiche {
-	margin-<?php print $left; ?>: <?php print (GETPOST('optioncss','aZ09') == 'print'?6:(empty($conf->dol_optimize_smallscreen)?'22':'6')); ?>px;
-	margin-<?php print $right; ?>: <?php print (GETPOST('optioncss','aZ09') == 'print'?6:(empty($conf->dol_optimize_smallscreen)?'25':'6')); ?>px;
+	margin-<?php print $left; ?>: <?php print (GETPOST('optioncss','aZ09') == 'print'?6:(empty($conf->dol_optimize_smallscreen)?'25':'6')); ?>px;
+	margin-<?php print $right; ?>: <?php print (GETPOST('optioncss','aZ09') == 'print'?6:(empty($conf->dol_optimize_smallscreen)?'24':'6')); ?>px;
 	<?php if (! empty($conf->dol_hide_leftmenu) && ! empty($conf->dol_hide_topmenu)) print 'margin-top: 4px;'."\n"; ?>
 	<?php if (! empty($conf->dol_hide_leftmenu)) print 'margin-bottom: 12px;'."\n"; ?>
 }
@@ -1240,6 +1288,9 @@ div.nopadding {
 .pictoedit, .pictowarning, .pictodelete {
     vertical-align: text-bottom;
 }
+.fiche img.pictoedit {
+    opacity: 0.7;
+}
 .colorthumb {
 	padding-left: 1px !important;
 	padding-right: 1px;
@@ -1287,10 +1338,15 @@ div.statusref img {
    	padding-right: 9px;
    	vertical-align: text-bottom;
 }
+div.statusrefbis {
+    padding-left: 8px;
+   	padding-right: 9px;
+   	vertical-align: text-bottom;
+}
 img.photoref, div.photoref {
 	border: 1px solid #CCC;
-    -webkit-box-shadow: 3px 3px 4px #DDD;
-    box-shadow: 3px 3px 4px #DDD;
+    -webkit-box-shadow: 2px 2px 4px #ccc;
+    box-shadow: 2px 2px 4px #ccc;
     padding: 4px;
 	height: 80px;
 	width: 80px;
@@ -1389,14 +1445,14 @@ a.tmenudisabled:link, a.tmenudisabled:visited, a.tmenudisabled:hover, a.tmenudis
 
 a.tmenu:link, a.tmenu:visited, a.tmenu:hover, a.tmenu:active {
     font-weight: normal;
-	padding: 0px 5px 0px 3px;
+	padding: 0px 4px 0px 4px;
 	white-space: nowrap;
 	color: #<?php echo $colortextbackhmenu; ?>;
     text-decoration: none;
 }
 a.tmenusel:link, a.tmenusel:visited, a.tmenusel:hover, a.tmenusel:active {
 	font-weight: normal;
-	padding: 0px 5px 0px 3px;
+	padding: 0px 4px 0px 4px;
 	margin: 0px 0px 0px 0px;
 	white-space: nowrap;
 	color: #<?php echo $colortextbackhmenu; ?>;
@@ -1444,7 +1500,7 @@ div.tmenuleft
 	margin-top: 0px;
 	<?php if (empty($conf->dol_optimize_smallscreen)) { ?>
 	width: 5px;
-	background: url(<?php echo dol_buildpath($path.'/theme/'.$theme.'/img/menutab-r.png',1); ?>) 0 -6px no-repeat;
+	/* background: url(<?php echo dol_buildpath($path.'/theme/'.$theme.'/img/menutab-r.png',1); ?>) 0 -6px no-repeat; */
 	<?php } ?>
 	<?php if ($disableimages) { ?>
 	height: 26px;
@@ -1485,12 +1541,8 @@ div.menu_titre {
 }
 .mainmenuaspan
 {
-<?php if ($disableimages) { ?>
-	padding-<?php print $left; ?>: 4px;
+	padding-<?php print $left; ?>: 2px;
 	padding-<?php print $right; ?>: 2px;
-<?php } else { ?>
-	padding-<?php print $right; ?>: 4px;
-<?php } ?>
 }
 
 div.mainmenu {
@@ -1678,7 +1730,6 @@ form#login {
 	max-width: 530px;
 	color: #aaa !important;
 	padding-bottom: 20px;
-	/* text-shadow: 1px 1px 1px #FFF; */
 }
 .login_table label {
 	text-shadow: 1px 1px 1px #FFF;
@@ -1706,7 +1757,7 @@ form#login {
 	border: none;
 	border-bottom: solid 1px rgba(180,180,180,.4);
 	padding: 5px;
-	margin-left: 18px;
+	margin-left: 5px;
 	margin-top: 5px;
 }
 .login_table input#username:focus, .login_table input#password:focus, .login_table input#securitycode:focus {
@@ -1718,10 +1769,10 @@ form#login {
 .login_main_message {
 	text-align: center;
 	max-width: 570px;
-	margin-bottom: 10px;
+	margin-bottom: 22px;
 }
 .login_main_message .error {
-	border: 1px solid #caa;
+	/* border: 1px solid #caa; */
 	padding: 10px;
 }
 div#login_left, div#login_right {
@@ -1766,7 +1817,7 @@ div.login_block {
 	position: absolute;
 	text-align: <?php print $right; ?>;
 	<?php print $right; ?>: 0;
-	top: 0;
+	top: <?php print $disableimages?'4px':'0'; ?>;
 	font-weight: bold;
 	max-width: <?php echo $maxwidthloginblock; ?>px;
 	<?php if (GETPOST('optioncss','aZ09') == 'print') { ?>
@@ -2089,7 +2140,7 @@ div.tabsElem {
 	margin-top: 1px;
 }	/* To avoid overlap of tabs when not browser */
 div.tabsElem a {
-    font-weight: normal !important;
+    /* font-weight: normal !important; */
 }
 div.tabBar {
     color: #<?php echo $colortextbacktab; ?>;
@@ -2219,6 +2270,9 @@ div.divButAction {
 div.tabsAction > a.butAction, div.tabsAction > a.butActionRefused {
 	margin-bottom: 1.4em !important;
 }
+div.tabsActionNoBottom > a.butAction, div.tabsActionNoBottom > a.butActionRefused {
+	margin-bottom: 0 !important;
+}
 
 span.butAction, span.butActionDelete {
 	cursor: pointer;
@@ -2238,6 +2292,11 @@ span.butAction, span.butActionDelete {
     color: #fff;
     background: rgb(<?php echo $colorbackhmenu1 ?>);
     border: 1px solid rgb(<?php echo $colorbackhmenu1 ?>);
+
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
 }
 
 .butAction:hover   {
@@ -2437,14 +2496,14 @@ table.liste tr, table.noborder tr, div.noborder form {
 	min-height: 20px;
 }
 table.liste th, table.noborder th, table.noborder tr.liste_titre td, table.noborder tr.box_titre td {
-	padding: 7px 2px 7px 3px;			/* t r b l */
+	padding: 7px 8px 7px 8px;			/* t r b l */
 }
 table.liste td, table.noborder td, div.noborder form div {
-	padding: 7px 2px 7px 3px;			/* t r b l */
+	padding: 7px 8px 7px 8px;			/* t r b l */
 	line-height: 1.2em;
 }
 div.liste_titre_bydiv .divsearchfield {
-	padding: 2px 1px 2px 0px;			/* t r b l */
+	padding: 2px 1px 2px 7px;			/* t r b l */
 }
 
 tr.box_titre .nobordernopadding td {
@@ -2491,7 +2550,7 @@ div.refidpadding  {
 }
 div.refid  {
 	font-weight: bold;
-  	color: #868;
+  	color: #625;
   	font-size: 160%;
 }
 div.refidno  {
@@ -2642,7 +2701,9 @@ div.pagination li.paginationafterarrows {
 	background: rgb(<?php echo $colorbacklinepairhover; ?>) !important;		/* Must be background to be stronger than background of odd or even */
 <?php } ?>
 }
-
+.nohover:hover {
+	background: unset;
+}
 .oddeven, .evenodd, .impair, .nohover .impair:hover, tr.impair td.nohover
 {
 	font-family: <?php print $fontlist ?>;
@@ -2684,10 +2745,10 @@ td.evenodd, tr.nohoverpair td {
 }
 
 table.dataTable td {
-    padding: 5px 2px 5px 3px !important;
+    padding: 5px 8px 5px 8px !important;
 }
 tr.pair td, tr.impair td, form.impair div.tagtd, form.pair div.tagtd, div.impair div.tagtd, div.pair div.tagtd, div.liste_titre div.tagtd {
-    padding: 7px 2px 7px 3px;
+    padding: 7px 8px 7px 8px;
     border-bottom: 1px solid #ddd;
 }
 form.pair, form.impair {
@@ -2788,7 +2849,6 @@ input.liste_titre {
 .listactionlargetitle .liste_titre {
 	line-height: 24px;
 }
-
 .noborder tr.liste_total td, tr.liste_total td, form.liste_total div, .noborder tr.liste_total_wrap td, tr.liste_total_wrap td, form.liste_total_wrap div {
     color: #551188;
     font-weight: normal;
@@ -2877,9 +2937,13 @@ ul.noborder li:nth-child(even):not(.liste_titre) {
  *  Boxes
  */
 
-.ficheaddleft div.boxstats {
-    border: none;
+.box {
+    overflow-x: auto;
+    min-height: 40px;
 }
+/*.ficheaddleft div.boxstats, .ficheaddright div.boxstats {
+    border: none;
+}*/
 .boxstatsborder {
     border: 1px solid #CCC !important;
 }
@@ -2897,7 +2961,7 @@ ul.noborder li:nth-child(even):not(.liste_titre) {
 }
 .boxstats {
     padding: 3px;
-    width: 103px;
+    width: 104px;
 }
 .boxstats130 {
     width: 158px;
@@ -2916,12 +2980,12 @@ ul.noborder li:nth-child(even):not(.liste_titre) {
 	.thumbstat150 {
 		flex: 1 1 110px;
 	}
-	.boxstats, .boxstats130 {
-        width: 90px;
-    }
     .dashboardlineindicator {
         float: left;
     	padding-left: 5px;
+    }
+    .boxstats130 {
+    	width: 148px;
     }
     .boxstats {
         width: 100px;
@@ -2996,6 +3060,10 @@ span.dashboardlineko {
 .tdboxstats {
 	text-align: center;
 }
+.boxworkingboard .tdboxstats {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
+}
 a.valignmiddle.dashboardlineindicator {
     line-height: 30px;
 }
@@ -3067,35 +3135,42 @@ div.ok {
   color: #114466;
 }
 
+/* Info admin */
+div.info {
+	border-<?php print $left; ?>: solid 5px #87cfd2;
+    padding-top: 8px;
+    padding-left: 10px;
+    padding-right: 4px;
+    padding-bottom: 8px;
+    margin: 0.5em 0em 0.5em 0em;
+    background: #eff8fc;
+}
+
 /* Warning message */
 div.warning {
-  color: #302020;
-  padding: 0.3em 0.3em 0.3em 0.3em;
-  margin: 0.5em 0em 0.5em 0em;
-  border: 2px solid #805000;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    border-<?php print $left; ?>: solid 5px #f2cf87;
+	padding-top: 8px;
+	padding-left: 10px;
+	padding-right: 4px;
+	padding-bottom: 8px;
+	margin: 0.5em 0em 0.5em 0em;
+    background: #fcf8e3;
+}
+div.warning a, div.info a, div.error a {
+	color: rgb(<?php echo $colortext; ?>);
 }
 
 /* Error message */
 div.error {
+    border-<?php print $left; ?>: solid 5px #f28787;
+	padding-top: 8px;
+	padding-left: 10px;
+	padding-right: 4px;
+	padding-bottom: 8px;
+	margin: 0.5em 0em 0.5em 0em;
   background: #EFCFCF;
 }
 
-/* Info admin */
-div.info {
-  color: #fff;
-  padding: 0.4em 0.4em 0.4em 0.4em;
-  margin: 0.5em 0em 0.5em 0em;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-  background: #798080;
-}
-
-div.warning a, div.info a, div.error a {
-	color: rgb(<?php echo $colortext; ?>);
-}
 
 /*
  *   Liens Payes/Non payes
@@ -3118,7 +3193,7 @@ a.impayee:hover { font-weight: bold; color: #550000; }
  */
 
 .product_line_stock_ok { color: #002200; }
-.product_line_stock_too_low { color: #664400; }
+.product_line_stock_too_low { color: #884400; }
 
 .fieldrequired { font-weight: bold; color: #000055; }
 
@@ -3178,7 +3253,7 @@ div.titre {
     padding-bottom: 5px;
 }
 
-#dolpaymenttable { min-width: 310px; font-size: 16px; }	/* Width must have min to make stripe input area visible */
+#dolpaymenttable { min-width: 300px; font-size: 16px; }	/* Width must have min to make stripe input area visible */
 #tablepublicpayment { border: 1px solid #CCCCCC !important; width: 100%; padding: 20px; }
 #tablepublicpayment .CTableRow1  { background-color: #F0F0F0 !important; }
 #tablepublicpayment tr.liste_total { border-bottom: 1px solid #CCCCCC !important; }
@@ -3265,20 +3340,19 @@ div#card-errors {
 /* ============================================================================== */
 
 table.valid {
-    border-top: solid 1px #E6E6E6;
-    border-<?php print $left; ?>: solid 1px #E6E6E6;
-    border-<?php print $right; ?>: solid 1px #444444;
-    border-bottom: solid 1px #555555;
-	padding-top: 0px;
-	padding-left: 0px;
-	padding-right: 0px;
-	padding-bottom: 0px;
+    /* border-top: solid 1px #E6E6E6; */
+    border-<?php print $left; ?>: solid 5px #f2cf87;
+    /* border-<?php print $right; ?>: solid 1px #444444;
+    border-bottom: solid 1px #555555; */
+	padding-top: 8px;
+	padding-left: 10px;
+	padding-right: 4px;
+	padding-bottom: 4px;
 	margin: 0px 0px;
-    background: #D5BAA8;
+    background: #fcf8e3;
 }
 
 .validtitre {
-    background: #D5BAA8;
 	font-weight: bold;
 }
 
@@ -3419,6 +3493,10 @@ tr.visible {
 /*  Module website                                                                */
 /* ============================================================================== */
 
+.phptag {
+	background: #ddd; border: 1px solid #ccc; border-radius: 4px;
+}
+
 .nobordertransp {
     border: 0px;
     background-color: transparent;
@@ -3505,8 +3583,8 @@ table.cal_month td:last-child   { border-right: 0px; }
 .cal_peruser       { padding-top: 0 !important; padding-bottom: 0 !important; padding-<?php print $left; ?>: 1px !important; padding-<?php print $right; ?>: 1px !important; }
 .cal_impair        { background: #F8F8F8; }
 .cal_today_peruser_impair { background: #F8F8F0; }
-.peruser_busy      { background: #CC8888; }
-.peruser_notbusy   { background: #EEDDDD; opacity: 0.5; }
+.peruser_busy      { }
+.peruser_notbusy   { opacity: 0.5; }
 table.cal_event    { border: none; border-collapse: collapse; margin-bottom: 1px; min-height: 20px; }
 table.cal_event td { border: none; padding-<?php print $left; ?>: 2px; padding-<?php print $right; ?>: 2px; padding-top: 0px; padding-bottom: 0px; }
 table.cal_event td.cal_event { padding: 4px 4px !important; }
@@ -3514,7 +3592,7 @@ table.cal_event td.cal_event_right { padding: 4px 4px !important; }
 .cal_event a:link    { color: #111111; font-size: 11px; font-weight: normal !important; }
 .cal_event a:visited { color: #111111; font-size: 11px; font-weight: normal !important; }
 .cal_event a:active  { color: #111111; font-size: 11px; font-weight: normal !important; }
-.cal_event a:hover   { color: #111111; font-size: 11px; font-weight: normal !important; color:rgba(255,255,255,.75); }
+.cal_event_busy a:hover   { color: #111111; font-size: 11px; font-weight: normal !important; color:rgba(255,255,255,.75); }
 .cal_event_busy      { }
 .cal_peruserviewname { max-width: 100px; height: 22px; }
 
@@ -3552,17 +3630,22 @@ table.cal_event td.cal_event_right { padding: 4px 4px !important; }
 
 
 /* ============================================================================== */
-/*  jQuery - jeditable                                                            */
+/*  jQuery - jeditable for inline edit                                            */
 /* ============================================================================== */
 
 .editkey_textarea, .editkey_ckeditor, .editkey_string, .editkey_email, .editkey_numeric, .editkey_select, .editkey_autocomplete {
 	background: url(<?php echo dol_buildpath($path.'/theme/'.$theme.'/img/edit.png',1) ?>) right top no-repeat;
 	cursor: pointer;
+	margin-right: 3px;
+	margin-top: 3px;
 }
 
 .editkey_datepicker {
 	background: url(<?php echo dol_buildpath($path.'/theme/'.$theme.'/img/calendar.png',1) ?>) right center no-repeat;
+	margin-right: 3px;
 	cursor: pointer;
+	margin-right: 3px;
+	margin-top: 3px;
 }
 
 .editval_textarea.active:hover, .editval_ckeditor.active:hover, .editval_string.active:hover, .editval_email.active:hover, .editval_numeric.active:hover, .editval_select.active:hover, .editval_autocomplete.active:hover, .editval_datepicker.active:hover {
@@ -3585,8 +3668,8 @@ table.cal_event td.cal_event_right { padding: 4px 4px !important; }
 /* ============================================================================== */
 
 /* CSS for treeview */
-.treeview ul { background-color: transparent !important; margin-top: 0; }
-.treeview li { background-color: transparent !important; padding: 0 0 0 16px !important; min-height: 20px; }
+.treeview ul { background-color: transparent !important; margin-top: 4px; padding-top: 4px !important; }
+.treeview li { background-color: transparent !important; padding: 0 0 0 16px !important; min-height: 26px; }
 .treeview .hover { color: rgb(<?php print $colortextlink; ?>) !important; text-decoration: underline !important; }
 
 
@@ -3718,6 +3801,12 @@ A.none, A.none:active, A.none:visited, A.none:hover {
 
 
 /* Style to overwrites JQuery styles */
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    border: 1px solid #888;
+    background: rgb(<?php echo $colorbacktitle1; ?>);
+    color: unset;
+}
+
 .ui-menu .ui-menu-item a {
     text-decoration:none;
     display:block;
@@ -3731,7 +3820,8 @@ A.none, A.none:active, A.none:visited, A.none:hover {
     font-family:<?php echo $fontlist; ?>;
     font-size:<?php echo $fontsize; ?>px;
 }
-.ui-button { margin-left: -2px; <?php print (preg_match('/chrome/',$conf->browser->name)?'padding-top: 1px;':''); ?> }
+/* .ui-button { margin-left: -2px; <?php print (preg_match('/chrome/',$conf->browser->name)?'padding-top: 1px;':''); ?> } */
+.ui-button { margin-left: -2px; }
 .ui-button-icon-only .ui-button-text { height: 8px; }
 .ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text { padding: 2px 0px 6px 0px; }
 .ui-button-text
@@ -3747,10 +3837,6 @@ A.none, A.none:active, A.none:visited, A.none:hover {
 
 .cke_dialog {
     border: 1px #bbb solid ! important;
-}
-.cke_editable
-{
-	margin: 5px !important;
 }
 /*.cke_editor table, .cke_editor tr, .cke_editor td
 {
@@ -3773,11 +3859,13 @@ a.cke_dialog_ui_button
 {
 	vertical-align: bottom ! important;
 }
+/*
 .cke_editable
 {
 	line-height: 1.4 !important;
 	margin: 6px !important;
 }
+*/
 a.cke_dialog_ui_button_ok span {
     text-shadow: none !important;
     color: #333 !important;
@@ -3944,10 +4032,13 @@ td.gminorheadingwkend {
 td.gminorheading {
     color: #666 !important;
 }
+.glistlbl, .glistgrid {
+	width: 582px !important;
+}
 .gtaskname div, .gtaskname {
-    min-width: 200px !important;
-    max-width: 200px !important;
-    width: 200px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+    width: 250px !important;
 }
 .gpccomplete div, .gpccomplete {
     min-width: 40px !important;
@@ -4068,6 +4159,7 @@ div#ecm-layout-center {
 	max-width: 1024px;
 	padding-left: 10px !important;
 	padding-right: 10px !important;
+	word-wrap: break-word;
 }
 .jnotify-container .jnotify-notification .jnotify-message {
 	font-weight: normal;
@@ -4364,6 +4456,10 @@ a span.select2-chosen
     text-align: <?php echo $left; ?>;
     opacity: 0.4;
 }
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+	color: unset;
+	opacity: 0.5;
+}
 span#select2-boxbookmark-container, span#select2-boxcombo-container {
     text-align: <?php echo $left; ?>;
     opacity: 0.5;
@@ -4518,6 +4614,19 @@ dl.dropdown {
 }
 .dropdown dd ul li a:hover {
     background-color:#fff;
+}
+
+
+/* ============================================================================== */
+/*  Markdown rendering                                                             */
+/* ============================================================================== */
+
+.imgmd {
+	width: 90%;
+}
+.moduledesclong h1 {
+	padding-top: 10px;
+	padding-bottom: 20px;
 }
 
 
@@ -4727,8 +4836,18 @@ div.tabsElem a.tab {
 }
 .lilevel3
 {
-	padding-left: 54px;
+	padding-left: 44px;
 	background: #fff ! important;
+}
+.lilevel4
+{
+	padding-left: 66px;
+    background: #fff ! important;
+}
+.lilevel5
+{
+	padding-left: 88px;
+    background: #fff ! important;
 }
 
 
@@ -4848,7 +4967,7 @@ div.tabsElem a.tab {
 
 /* nboftopmenuentries = <?php echo $nbtopmenuentries ?>, fontsize=<?php echo $fontsize ?> */
 /* rule to reduce top menu - 1st reduction */
-@media only screen and (max-width: <?php echo round($nbtopmenuentries * $fontsize * 6.9, 0) + 24; ?>px)	/* reduction 1 */
+@media only screen and (max-width: <?php echo round($nbtopmenuentries * $fontsize * 7, 0) + 24; ?>px)	/* reduction 1 */
 {
 	div.tmenucenter {
 	    width: <?php echo round($fontsize * 4); ?>px;	/* size of viewport */
@@ -4860,6 +4979,7 @@ div.tabsElem a.tab {
 	.mainmenuaspan {
     	/*display: none;*/
   		font-size: 10px;
+  		padding-right: 0;
     }
     .topmenuimage {
     	background-size: 22px auto;
@@ -4874,6 +4994,10 @@ div.tabsElem a.tab {
     }
 	div.tmenuleft {
 		display: none;
+	}
+
+	.dropdown dd ul {
+		max-width: 300px;
 	}
 }
 /* rule to reduce top menu - 2nd reduction */
@@ -4890,8 +5014,9 @@ div.tabsElem a.tab {
     	margin-left: 1px;
 	}
 	.mainmenuaspan {
-    	/*display: none;*/
   		font-size: 10px;
+  		padding-left: 0;
+  		padding-right: 0;
     }
     .topmenuimage {
     	background-size: 20px auto;
@@ -4904,12 +5029,12 @@ div.tabsElem a.tab {
 {
 	.side-nav {
 		z-index: 200;
-    	background: #FFF;
+		background: rgb(<?php echo $colorbackvmenu1; ?>);
 		padding-top: 70px;
     }
 	#id-left {
     	z-index: 201;
-        background: #FFF;
+		background: rgb(<?php echo $colorbackvmenu1; ?>);
 	}
 
     .login_vertical_align {
@@ -4952,7 +5077,9 @@ div.tabsElem a.tab {
 		left: 0 !important;
 		text-align: center;
         vertical-align: middle;
-        background: #FFF;
+
+		background: rgb(<?php echo $colorbackvmenu1; ?>);
+
         height: 50px;
 
     	z-index: 202;
@@ -4985,6 +5112,18 @@ div.tabsElem a.tab {
 	div.mainmenu {
     	min-width: 20px;
     }
+
+	.titlefield {
+	    width: auto !important;		/* We want to ignor the 30%, try to use more if you can */
+	}
+	.tableforfield>tr>td:first-child {
+	    max-width: 100px;			/* but no more than 100px */
+	}
+	.badge {
+		line-height: 1.2em;
+		min-width: auto;
+		font-size: 12px;
+	}
 }
 
 <?php

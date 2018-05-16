@@ -124,8 +124,6 @@ if (empty($user->societe_id))
     $boxstat.='</tr>';
     $boxstat.='<tr class="impair"><td class="tdboxstats nohover flexcontainer">';
 
-    $var=true;
-
     $object=new stdClass();
     $parameters=array();
     $action='';
@@ -368,7 +366,7 @@ $showweather=empty($conf->global->MAIN_DISABLE_METEO)?1:0;
 $dashboardlines=array();
 
 // Do not include sections without management permission
-require DOL_DOCUMENT_ROOT.'/core/class/workboardresponse.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/workboardresponse.class.php';
 
 // Number of actions to do (late)
 if (! empty($conf->agenda->enabled) && $user->rights->agenda->myactions->read)
@@ -500,9 +498,16 @@ if (! empty($conf->expensereport->enabled) && $user->rights->expensereport->to_p
 	$dashboardlines[] = $board->load_board($user,'topay');
 }
 
+$object=new stdClass();
+$parameters=array();
+$action='';
+$reshook=$hookmanager->executeHooks('addOpenElementsDashboardLine',$parameters,$object,$action);    // Note that $action and $object may have been modified by some hooks
+if ($reshook == 0) {
+	$dashboardlines = array_merge($dashboardlines, $hookmanager->resArray);
+}
+
 // Calculate total nb of late
 $totallate=$totaltodo=0;
-$var=true;
 
 //Remove any invalid response
 //load_board can return an integer if failed or WorkboardResponse if OK
@@ -525,7 +530,7 @@ if(!empty($conf->global->MAIN_USE_METEO_WITH_PERCENTAGE)) $totallate = round($to
 //var_dump($totallate);
 $boxwork='';
 $boxwork.='<div class="box">';
-$boxwork.='<table summary="'.dol_escape_htmltag($langs->trans("WorkingBoard")).'" class="noborder boxtable boxtablenobottom" width="100%">'."\n";
+$boxwork.='<table summary="'.dol_escape_htmltag($langs->trans("WorkingBoard")).'" class="noborder boxtable boxtablenobottom boxworkingboard" width="100%">'."\n";
 $boxwork.='<tr class="liste_titre">';
 $boxwork.='<th class="liste_titre">'.$langs->trans("DolibarrWorkBoard").'</th>';
 $boxwork.='</tr>'."\n";
@@ -551,7 +556,7 @@ if (! empty($valid_dashboardlines))
 	$boxwork.='<tr class="nohover"><td class="tdboxstats nohover flexcontainer centpercent">';
     foreach($valid_dashboardlines as $board)
     {
-        if (empty($boad->nbtodo)) $nbworkboardempty++;
+        if (empty($board->nbtodo)) $nbworkboardempty++;
 
         $textlate = $langs->trans("NActionsLate",$board->nbtodolate);
         $textlate.= ' ('.$langs->trans("Late").' = '.$langs->trans("DateReference").' > '.$langs->trans("DateToday").' '.(ceil($board->warning_delay) >= 0 ? '+' : '').ceil($board->warning_delay).' '.$langs->trans("days").')';
@@ -609,25 +614,27 @@ print '<div class="fichecenter fichecenterbis">';
  * Show boxes
  */
 
-$boxlist.='<table width="100%" class="notopnoleftnoright">';
-$boxlist.='<tr><td class="notopnoleftnoright">'."\n";
+$boxlist.='<div class="twocolumns">';
 
-$boxlist.='<div class="fichehalfleft">';
-
-//$boxlist.=$boxinfo;
-$boxlist.=$boxstat;
-$boxlist.=$resultboxes['boxlista'];
-
-$boxlist.= '</div><div class="fichehalfright"><div class="ficheaddleft">';
+$boxlist.='<div class="fichehalfleft boxhalfleft" id="boxhalfleft">';
 
 $boxlist.=$boxwork;
+$boxlist.=$resultboxes['boxlista'];
+
+$boxlist.= '</div>';
+
+$boxlist.= '<div class="fichehalfright boxhalfright" id="boxhalfright">';
+$boxlist.= '<div class="ficheaddleft">';
+
+$boxlist.=$boxstat;
 $boxlist.=$resultboxes['boxlistb'];
 
-$boxlist.= '</div></div>';
+$boxlist.= '</div>';
+$boxlist.= '</div>';
 $boxlist.= "\n";
 
-$boxlist.= "</td></tr>";
-$boxlist.= "</table>";
+$boxlist.='</div>';
+
 
 print $boxlist;
 
@@ -649,7 +656,7 @@ if ($user->admin && empty($conf->global->MAIN_REMOVE_INSTALL_WARNING))
     {
         $langs->load("errors");
         //if (! empty($message)) $message.='<br>';
-        $message.=info_admin($langs->trans("WarningLockFileDoesNotExists",DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
+        $message.=info_admin($langs->trans("WarningLockFileDoesNotExists",DOL_DATA_ROOT).' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
     }
 
     // Conf files must be in read only mode
@@ -658,7 +665,7 @@ if ($user->admin && empty($conf->global->MAIN_REMOVE_INSTALL_WARNING))
         $langs->load("errors");
         //$langs->load("other");
         //if (! empty($message)) $message.='<br>';
-        $message.=info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved",DOL_DOCUMENT_ROOT."/install"));
+        $message.=info_admin($langs->transnoentities("WarningConfFileMustBeReadOnly").' '.$langs->trans("WarningUntilDirRemoved", DOL_DOCUMENT_ROOT."/install"), 0, 0, '1', 'clearboth');
     }
 
     if ($message)

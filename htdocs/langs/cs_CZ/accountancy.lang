@@ -7,6 +7,8 @@ ACCOUNTING_EXPORT_LABEL=Exportovat štítek
 ACCOUNTING_EXPORT_AMOUNT=Exportovat částku
 ACCOUNTING_EXPORT_DEVISE=Export měny
 Selectformat=Vyberte formát souboru
+ACCOUNTING_EXPORT_FORMAT=Vyberte formát souboru
+ACCOUNTING_EXPORT_ENDLINE=Select the carriage return type
 ACCOUNTING_EXPORT_PREFIX_SPEC=Určete předponu pro název souboru
 ThisService=Tato služba
 ThisProduct=Tento výrobek
@@ -34,6 +36,7 @@ NotYetInGeneralLedger=Not yet journalized in ledgers
 GroupIsEmptyCheckSetup=Group is empty, check setup of the personalized accounting group
 DetailByAccount=Show detail by account
 AccountWithNonZeroValues=Accounts with non zero values
+ListOfAccounts=List of accounts
 
 MainAccountForCustomersNotDefined=Main accounting account for customers not defined in setup
 MainAccountForSuppliersNotDefined=Main accounting account for suppliers not defined in setup
@@ -67,7 +70,6 @@ AccountancyAreaDescAnalyze=KROK %s: Přidat nebo upravit stávající transakce 
 AccountancyAreaDescClosePeriod=KROK %s: Uzavřené období, takže nemůžeme udělat změny v budoucnosti.
 
 TheJournalCodeIsNotDefinedOnSomeBankAccount=A mandatory step in setup was not complete (accounting code journal not defined for all bank accounts)
-MenuAccountancy=Účetnictví
 Selectchartofaccounts=Vybrat aktivní účtové osnovy
 ChangeAndLoad=Změna a load
 Addanaccount=Přidat účetní účet
@@ -156,7 +158,7 @@ NumPiece=počet kusů
 TransactionNumShort=Num. transakce
 AccountingCategory=Personalized groups
 GroupByAccountAccounting=Skupina účetním účtu
-AccountingAccountGroupsDesc=You can define here some groups of accounting account. It will be used in the report <b>%s</b> to show your income/expense with data grouped according to these groups.
+AccountingAccountGroupsDesc=You can define here some groups of accounting account. They will be used for personalized accounting reports.
 ByAccounts=By accounts
 ByPredefinedAccountGroups=By predefined groups
 ByPersonalizedAccountGroups=By personalized groups
@@ -166,7 +168,7 @@ DeleteMvt=Delete Ledger lines
 DelYear=Odstrannění roku
 DelJournal=Journal odstranit
 ConfirmDeleteMvt=This will delete all lines of the Ledger for year and/or from a specific journal. At least one criteria is required.
-ConfirmDeleteMvtPartial=This will delete the selected line(s) of the Ledger
+ConfirmDeleteMvtPartial=This will delete the transaction from the Ledger (all lines related to same transaction will be deleted)
 DelBookKeeping=Delete record of the Ledger
 FinanceJournal=Finanční deník
 ExpenseReportsJournal=Výdajové zprávy journal
@@ -189,6 +191,7 @@ DescThirdPartyReport=Konzultujte zde seznam třetích stran, zákazníky a dodav
 ListAccounts=Seznam účetních účtů
 UnknownAccountForThirdparty=Unknown third party account. We will use %s
 UnknownAccountForThirdpartyBlocking=Unknown third party account. Blocking error
+UnknownAccountForThirdpartyAndWaitingAccountNotDefinedBlocking=Unknown third party account and waiting account not defined. Blocking error
 
 Pcgtype=Group of account
 Pcgsubtype=Subgroup of account
@@ -218,7 +221,7 @@ MvtNotCorrectlyBalanced=Movement not correctly balanced. Credit = %s. Debit = %s
 FicheVentilation=Ověřovací karta
 GeneralLedgerIsWritten=Transactions are written in the Ledger
 GeneralLedgerSomeRecordWasNotRecorded=Some of the transactions could not be dispatched. If there is no other error message, this is probably because they were already dispatched.
-NoNewRecordSaved=No new record dispatched
+NoNewRecordSaved=No more record to journalize
 ListOfProductsWithoutAccountingAccount=Seznam výrobků, které nejsou vázány na kterémkoli účetním účtu
 ChangeBinding=Změnit vazby
 
@@ -242,7 +245,6 @@ ErrorAccountingJournalIsAlreadyUse=Tento deník se již používá
 ## Export
 ExportDraftJournal=Export draft journal
 Modelcsv=Model exportu
-OptionsDeactivatedForThisExportModel=Možnosti pro tento exportní model jsou deaktivovány
 Selectmodelcsv=Vyberte způsob exportu
 Modelcsv_normal=Klasický export
 Modelcsv_CEGID=Export směrem CEGID Expert Comptabilité
@@ -252,7 +254,8 @@ Modelcsv_ciel=Export na Sage Ciel Compta nebo Compta Evolution
 Modelcsv_quadratus=Export směrem quadratus QuadraCompta
 Modelcsv_ebp=Export na EBP
 Modelcsv_cogilog=Export směrem Cogilog
-Modelcsv_agiris=Export towards Agiris (Test)
+Modelcsv_agiris=Export towards Agiris
+Modelcsv_configurable=Export Configurable
 ChartofaccountsId=Schéma Id účtů
 
 ## Tools - Init accounting account on product / service

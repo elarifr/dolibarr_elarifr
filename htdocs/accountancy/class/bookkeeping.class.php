@@ -32,25 +32,18 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 class BookKeeping extends CommonObject
 {
 	/**
-	 *
 	 * @var string Error code (or message)
-	 * @deprecated
-	 *
-	 * @see Accountingbookkeeping::errors
 	 */
 	public $error;
 	/**
-	 *
 	 * @var string[] Error codes (or messages)
 	 */
 	public $errors = array ();
 	/**
-	 *
 	 * @var string Id to identify managed objects
 	 */
 	public $element = 'accountingbookkeeping';
 	/**
-	 *
 	 * @var string Name of table without prefix where object is stored
 	 */
 	public $table_element = 'accounting_bookkeeping';
@@ -58,13 +51,11 @@ class BookKeeping extends CommonObject
 	public $entity = 1;
 
 	/**
-	 *
 	 * @var BookKeepingLine[] Lines
 	 */
 	public $lines = array ();
 
 	/**
-	 *
 	 * @var int ID
 	 */
 	public $id;
@@ -202,13 +193,18 @@ class BookKeeping extends CommonObject
 
 		$this->piece_num = 0;
 
-		// First check if line not yet already in bookkeeping
+		// First check if line not yet already in bookkeeping.
+		// Note that we must include doc_type - fk_doc - numero_compte - label to be sure to have unicity of line (we may have several lines
+		// with same doc_type, fk_odc, numero_compte for 1 invoice line when using localtaxes with same account)
+		// WARNING: This is not reliable, label may have been modified. This is just a small protection.
+		// The page to make journalization make the test on couple doc_type - fk_doc only.
 		$sql = "SELECT count(*) as nb";
 		$sql .= " FROM " . MAIN_DB_PREFIX . $this->table_element;
 		$sql .= " WHERE doc_type = '" . $this->db->escape($this->doc_type) . "'";
 		$sql .= " AND fk_doc = " . $this->fk_doc;
-		$sql .= " AND fk_docdet = " . $this->fk_docdet;					// This field can be 0 is record is for several lines
+		//$sql .= " AND fk_docdet = " . $this->fk_docdet;					// This field can be 0 if record is for several lines
 		$sql .= " AND numero_compte = '" . $this->db->escape($this->numero_compte) . "'";
+		$sql .= " AND label_operation = '" . $this->db->escape($this->label_operation) . "'";
 		$sql .= " AND entity IN (" . getEntity('accountancy') . ")";
 
 		$resql = $this->db->query($sql);
@@ -632,12 +628,14 @@ class BookKeeping extends CommonObject
 	 * @param array $filter filter array
 	 * @param string $filtermode filter mode (AND or OR)
 	 *
-	 * @return int <0 if KO, >0 if OK
+	 * @return int <0 if KO, >=0 if OK
 	 */
 	public function fetchAllByAccount($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND') {
 		global $conf;
 
 		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		$this->lines = array();
 
 		$sql = 'SELECT';
 		$sql .= ' t.rowid,';
@@ -699,7 +697,6 @@ class BookKeeping extends CommonObject
 		if (! empty($limit)) {
 			$sql .= ' ' . $this->db->plimit($limit + 1, $offset);
 		}
-		$this->lines = array ();
 
 		$resql = $this->db->query($sql);
 		if ($resql) {
@@ -741,7 +738,7 @@ class BookKeeping extends CommonObject
 			$this->errors[] = 'Error ' . $this->db->lasterror();
 			dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
 
-			return - 1;
+			return -1;
 		}
 	}
 
@@ -784,7 +781,8 @@ class BookKeeping extends CommonObject
 		$sql .= " t.code_journal,";
 		$sql .= " t.journal_label,";
 		$sql .= " t.piece_num,";
-		$sql .= " t.date_creation";
+		$sql .= " t.date_creation,";
+		$sql .= " t.tms as date_modification";
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
 		// Manage filter
 		$sqlwhere = array ();
@@ -852,7 +850,8 @@ class BookKeeping extends CommonObject
 				$line->code_journal = $obj->code_journal;
 				$line->journal_label = $obj->journal_label;
 				$line->piece_num = $obj->piece_num;
-				$line->date_creation = $obj->date_creation;
+				$line->date_creation = $this->db->jdate($obj->date_creation);
+				$line->date_modification = $this->db->jdate($obj->date_modification);
 
 				$this->lines[] = $line;
 			}
@@ -879,8 +878,11 @@ class BookKeeping extends CommonObject
 	 *
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetchAllBalance($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND') {
+	public function fetchAllBalance($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
+	{
 		global $conf;
+
+		$this->lines = array();
 
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -924,7 +926,6 @@ class BookKeeping extends CommonObject
 		if (! empty($limit)) {
 			$sql .= ' ' . $this->db->plimit($limit + 1, $offset);
 		}
-		$this->lines = array ();
 
 		$resql = $this->db->query($sql);
 		if ($resql) {

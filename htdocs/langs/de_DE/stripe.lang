@@ -1,6 +1,6 @@
 # Dolibarr language file - Source file is en_US - stripe
 StripeSetup=Strip Moduleeinstellungen
-StripeDesc=Dieses Modul erlaubt die Annahme von Zahlungen über <a href="http://www.paybox.com" target="_blank">Stripe</a>. Sie können damit Zahlungen zu Objekten innerhalb des Systems (Rechnungen, Bestellungen, ...) erfassen.
+StripeDesc=Modul zur Bereitstellung einer Online-Zahlungsseite für Zahlungen mit Kredit- / Debitkarten über <a href="http://www.stripe.com" target="_blank"> Stripe </a>. Dies kann verwendet werden, um Ihren Kunden eine kostenlose Zahlung oder eine Zahlung für ein bestimmtes Dolibarr-Objekt (Rechnung, Bestellung, ...) zu ermöglichen.
 StripeOrCBDoPayment=Zahlen mit Kreditkarte oder Stripe
 FollowingUrlAreAvailableToMakePayments=Für Kundenzahlungen stehen Ihnen die folgenden URLs zur Verfügung:
 PaymentForm=Zahlungsformular
@@ -12,7 +12,7 @@ YourEMail=E-Mail-Adresse für die Zahlungsbestätigung
 STRIPE_PAYONLINE_SENDEMAIL=Status-E-Mail nach einer Zahlung (erfolgreich oder nicht)
 Creditor=Zahlungsempfänger
 PaymentCode=Zahlungscode
-StripeDoPayment=Pay with Credit or Debit Card (Stripe)
+StripeDoPayment=Bezahlen mit Kredit- oder Debitkarte (Stripe)
 YouWillBeRedirectedOnStripe=Zur Eingabe Ihrer Kreditkartendaten werden Sie auf die sichere Bezahlseite von Stripe weitergeleitet.
 Continue=Nächster
 ToOfferALinkForOnlinePayment=URL für %s Zahlung

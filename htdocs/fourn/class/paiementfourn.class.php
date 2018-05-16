@@ -79,16 +79,17 @@ class PaiementFourn extends Paiement
 		$sql = 'SELECT p.rowid, p.ref, p.entity, p.datep as dp, p.amount, p.statut, p.fk_bank,';
 		$sql.= ' c.code as paiement_code, c.libelle as paiement_type,';
 		$sql.= ' p.num_paiement, p.note, b.fk_account';
-		$sql.= ' FROM '.MAIN_DB_PREFIX.'c_paiement as c, '.MAIN_DB_PREFIX.'paiementfourn as p';
+		$sql.= ' FROM '.MAIN_DB_PREFIX.'paiementfourn as p';
+		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_paiement as c ON p.fk_paiement = c.id AND c.entity IN ('.getEntity('c_paiement').')';
 		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'bank as b ON p.fk_bank = b.rowid ';
-		$sql.= ' WHERE p.fk_paiement = c.id';
-		$sql.= ' AND c.entity IN (' . getEntity('c_paiement').')';
+		$sql.= ' WHERE p.entity IN ('.getEntity('facture_fourn').')';
 		if ($id > 0)
 			$sql.= ' AND p.rowid = '.$id;
 		else if ($ref)
 			$sql.= ' AND p.rowid = '.$ref;
 		else if ($fk_bank)
 			$sql.= ' AND p.fk_bank = '.$fk_bank;
+		//print $sql;
 
 		$resql = $this->db->query($sql);
 		if ($resql)
@@ -209,11 +210,12 @@ class PaiementFourn extends Paiement
 						$resql=$this->db->query($sql);
 						if ($resql)
 						{
+							$invoice=new FactureFournisseur($this->db);
+							$invoice->fetch($facid);
+
 							// If we want to closed payed invoices
 							if ($closepaidinvoices)
 							{
-								$invoice=new FactureFournisseur($this->db);
-								$invoice->fetch($facid);
 								$paiement = $invoice->getSommePaiement();
 								//$creditnotes=$invoice->getSumCreditNotesUsed();
 								$creditnotes=0;
@@ -227,17 +229,34 @@ class PaiementFourn extends Paiement
 								}
 								else dol_syslog("Remain to pay for invoice ".$facid." not null. We do nothing.");
 							}
+
+							// Regenerate documents of invoices
+							if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE))
+							{
+								$outputlangs = $langs;
+								if ($conf->global->MAIN_MULTILANGS && empty($newlang))	$newlang = $invoice->thirdparty->default_lang;
+								if (! empty($newlang)) {
+									$outputlangs = new Translate("", $conf);
+									$outputlangs->setDefaultLang($newlang);
+								}
+								$ret = $invoice->fetch($facid); // Reload to get new records
+								$result = $invoice->generateDocument($invoice->modelpdf, $outputlangs);
+								if ($result < 0) {
+									setEventMessages($invoice->error, $invoice->errors, 'errors');
+									$error++;
+								}
+							}
 						}
 						else
 						{
-							dol_syslog('Paiement::Create Erreur INSERT dans paiement_facture '.$facid);
+							$this->error=$this->db->lasterror();
 							$error++;
 						}
 
 					}
 					else
 					{
-						dol_syslog('PaiementFourn::Create Montant non numerique',LOG_ERR);
+						dol_syslog(get_class($this).'::Create Amount line '.$key.' not a number. We discard it.');
 					}
 				}
 
@@ -533,9 +552,10 @@ class PaiementFourn extends Paiement
 	 *	@param		int		$withpicto		0=No picto, 1=Include picto into link, 2=Only picto
 	 *	@param		string	$option			Sur quoi pointe le lien
 	 *  @param		string  $mode           'withlistofinvoices'=Include list of invoices into tooltip
+     *  @param		int  	$notooltip		1=Disable tooltip
 	 *	@return		string					Chaine avec URL
 	 */
-	function getNomUrl($withpicto=0,$option='',$mode='withlistofinvoices')
+	function getNomUrl($withpicto=0, $option='', $mode='withlistofinvoices', $notooltip=0)
 	{
 		global $langs;
 
@@ -548,13 +568,14 @@ class PaiementFourn extends Paiement
 		}
 		$label = $langs->trans("ShowPayment").': '.$text;
 
-		$link = '<a href="'.DOL_URL_ROOT.'/fourn/paiement/card.php?id='.$this->id.'" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
-		$linkend='</a>';
+		$linkstart = '<a href="'.DOL_URL_ROOT.'/fourn/paiement/card.php?id='.$this->id.'" title="'.dol_escape_htmltag($label, 1).'" class="classfortooltip">';
+		$linkend = '</a>';
 
+		$result .= $linkstart;
+		if ($withpicto) $result.=img_object(($notooltip?'':$label), ($this->picto?$this->picto:'generic'), ($notooltip?(($withpicto != 2) ? 'class="paddingright"' : ''):'class="'.(($withpicto != 2) ? 'paddingright ' : '').'classfortooltip"'), 0, 0, $notooltip?0:1);
+		if ($withpicto != 2) $result.= $this->ref;
+		$result .= $linkend;
 
-		if ($withpicto) $result.=($link.img_object($langs->trans("ShowPayment"), 'payment', 'class="classfortooltip"').$linkend);
-		if ($withpicto && $withpicto != 2) $result.=' ';
-		if ($withpicto != 2) $result.=$link.$text.$linkend;
 		return $result;
 	}
 
@@ -735,4 +756,32 @@ class PaiementFourn extends Paiement
 
 		return $way;
 	}
+
+
+	/**
+	 *    	Load the third party of object, from id into this->thirdparty
+	 *
+	 *		@param		int		$force_thirdparty_id	Force thirdparty id
+	 *		@return		int								<0 if KO, >0 if OK
+	 */
+	function fetch_thirdparty($force_thirdparty_id=0)
+	{
+		require_once DOL_DOCUMENT_ROOT . '/fourn/class/fournisseur.facture.class.php';
+
+		if (empty($force_thirdparty_id))
+		{
+			$billsarray = $this->getBillsArray(); // From payment, the fk_soc isn't available, we should load the first supplier invoice to get him
+			if (!empty($billsarray))
+			{
+				$supplier_invoice = new FactureFournisseur($this->db);
+				if ($supplier_invoice->fetch($billsarray[0]) > 0)
+				{
+					$force_thirdparty_id = $supplier_invoice->fk_soc;
+				}
+			}
+		}
+
+		return parent::fetch_thirdparty($force_thirdparty_id);
+	}
+
 }

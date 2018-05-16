@@ -6,7 +6,7 @@
  * Copyright (C) 2013		Cédric Salvador		<csalvador@gpcsolutions.fr>
  * Copyright (C) 2014		Marcos García		<marcosgdf@gmail.com>
  * Copyright (C) 2015		Bahfir Abbes		<bafbes@gmail.com>
- * Copyright (C) 2016		Ferran Marcet		<fmarcet@2byte.es>
+ * Copyright (C) 2016-2017	Ferran Marcet		<fmarcet@2byte.es>
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ class FormFile
 
 			if (! empty($options)) $out .= '<td>'.$options.'</td>';
 
-			$out .= '<td valign="middle">';
+			$out .= '<td class="valignmiddle nowrap">';
 
 			$max=$conf->global->MAIN_UPLOAD_DOC;		// En Kb
 			$maxphp=@ini_get('upload_max_filesize');	// En inconnu
@@ -944,6 +944,7 @@ class FormFile
 	 *  @param   int    $disablemove        1=Disable move button, 0=Position move is possible.
 	 *  @param	 int	$addfilterfields	Add line with filters
 	 * 	@return	 int						<0 if KO, nb of files shown if OK
+	 *  @see list_of_autoecmfiles
 	 */
 	function list_of_documents($filearray,$object,$modulepart,$param='',$forcedownload=0,$relativepath='',$permonobject=1,$useinecm=0,$textifempty='',$maxlength=0,$title='',$url='', $showrelpart=0, $permtoeditline=-1,$upload_dir='',$sortfield='',$sortorder='ASC', $disablemove=1, $addfilterfields=0)
 	{
@@ -958,10 +959,10 @@ class FormFile
 			if ($object->element == 'invoice_supplier') $relativepath=get_exdir($object->id,2,0,0,$object,'invoice_supplier').$relativepath;	// TODO Call using a defined value for $relativepath
 			if ($object->element == 'project_task') $relativepath='Call_not_supported_._Call_function_using_a_defined_relative_path_.';
 		}
-		// For backward compatiblity, we detect file is stored into an old path
-		if (! empty($conf->global->PRODUCT_USE_OLD_PATH_FOR_PHOTO) && $file['level1name'] == 'photos')
+		// For backward compatiblity, we detect file stored into an old path
+		if (! empty($conf->global->PRODUCT_USE_OLD_PATH_FOR_PHOTO) && $filearray[0]['level1name'] == 'photos')
 		{
-			$relativepath=preg_replace('/^.*\/produit\//','',$file['path']).'/';
+		    $relativepath=preg_replace('/^.*\/produit\//','',$filearray[0]['path']).'/';
 		}
 		// Defined relative dir to DOL_DATA_ROOT
 		$relativedir = '';
@@ -1068,7 +1069,7 @@ class FormFile
 			$nboffiles=count($filearray);
 			if ($nboffiles > 0) include_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
 
-			$var=true; $i=0; $nboflines = 0; $lastrowid=0;
+			$i=0; $nboflines = 0; $lastrowid=0;
 			foreach($filearray as $key => $file)      // filearray must be only files here
 			{
 				if ($file['name'] != '.'
@@ -1083,7 +1084,7 @@ class FormFile
 					print '<!-- Line list_of_documents '.$key.' relativepath = '.$relativepath.' -->'."\n";
 					// Do we have entry into database ?
 					print '<!-- In database: position='.$filearray[$key]['position'].' -->'."\n";
-					print '<tr id="row-'.($filearray[$key]['rowid']>0?$filearray[$key]['rowid']:'-AFTER'.$lastrowid.'POS'.($i+1)).'" '.$bcdd[$var].'>';
+					print '<tr id="row-'.($filearray[$key]['rowid']>0?$filearray[$key]['rowid']:'-AFTER'.$lastrowid.'POS'.($i+1)).'">';
 
 					// File name
 					print '<td class="tdoverflowmax300">';
@@ -1114,6 +1115,8 @@ class FormFile
 					}
 					// Preview link
 					if (! $editline) print $this->showPreview($file, $modulepart, $filepath);
+					// Public share link
+					//if (! $editline && ! empty($filearray[$key]['hashp'])) print pictowithlinktodirectdownload;
 
 					print "</td>\n";
 
@@ -1150,7 +1153,7 @@ class FormFile
 						print '<td class="valignmiddle right actionbuttons"><!-- action on files -->';
 						if ($useinecm == 1)
 						{
-							print '<a href="'.DOL_URL_ROOT.'/ecm/docfile.php?urlfile='.urlencode($file['name']).$param.'" class="editfilelink" rel="'.urlencode($file['name']).'">'.img_view('default', 0, 'class="paddingrightonly"').'</a>';
+							print '<a href="'.DOL_URL_ROOT.'/ecm/file_card.php?urlfile='.urlencode($file['name']).$param.'" class="editfilelink" rel="'.urlencode($file['name']).'">'.img_view('default', 0, 'class="paddingrightonly"').'</a>';
 						}
 						if (! $useinecm || $useinecm == 2)
 						{
@@ -1234,7 +1237,7 @@ class FormFile
 			print "</table>";
 			print '</div>';
 
-			if (! $editline && $nboflines > 1) {
+			if ($nboflines > 1 && is_object($object)) {
 				if (! empty($conf->use_javascript_ajax) && $permtoeditline) {
 					$table_element_line = 'ecm_files';
 					include DOL_DOCUMENT_ROOT . '/core/tpl/ajaxrow.tpl.php';
@@ -1267,8 +1270,9 @@ class FormFile
 	 *  @param	string 	$url				Full url to use for click links ('' = autodetect)
 	 *  @param	int		$addfilterfields	Add line with filters
 	 *  @return int                 		<0 if KO, nb of files shown if OK
+	 *  @see list_of_documents
 	 */
-	function list_of_autoecmfiles($upload_dir,$filearray,$modulepart,$param,$forcedownload=0,$relativepath='',$permtodelete=1,$useinecm=0,$textifempty='',$maxlength=0,$url='',$addfilterfields=0)
+	function list_of_autoecmfiles($upload_dir, $filearray, $modulepart, $param, $forcedownload=0, $relativepath='', $permtodelete=1, $useinecm=0, $textifempty='', $maxlength=0, $url='', $addfilterfields=0)
 	{
 		global $user, $conf, $langs, $form;
 		global $bc;
@@ -1387,7 +1391,6 @@ class FormFile
 			$object_instance=new ExpenseReport($this->db);
 		}
 
-		$var=true;
 		foreach($filearray as $key => $file)
 		{
 			if (!is_dir($file['name'])
@@ -1474,7 +1477,8 @@ class FormFile
 				print dol_trunc($file['name'],$maxlength,'middle');
 				print '</a>';
 
-				print $this->getDocumentsLink($modulepart, $modulesubdir, $filedir, '^'.preg_quote($file['name'],'/').'$');
+				//print $this->getDocumentsLink($modulepart, $modulesubdir, $filedir, '^'.preg_quote($file['name'],'/').'$');
+				print $this->showPreview($file, $modulepart, $file['relativename']);
 
 				print "</td>\n";
 				print '<td align="right">'.dol_print_size($file['size'],1,1).'</td>';
@@ -1615,11 +1619,9 @@ class FormFile
 		$nboflinks = count($links);
 		if ($nboflinks > 0) include_once DOL_DOCUMENT_ROOT.'/core/lib/images.lib.php';
 
-		$var = true;
 		foreach ($links as $link)
 		{
-			$var =! $var;
-			print '<tr ' . $bc[$var] . '>';
+			print '<tr class="oddeven">';
 			//edit mode
 			if ($action == 'update' && $selected === $link->id)
 			{
@@ -1678,7 +1680,7 @@ class FormFile
 	/**
 	 * Show detail icon with link for preview
 	 *
-	 * @param   array     $file           File
+	 * @param   array     $file           Array with data of file. Example: array('name'=>...)
 	 * @param   string    $modulepart     propal, facture, facture_fourn, ...
 	 * @param   string    $relativepath   Relative path of docs
 	 * @param   string    $ruleforpicto   Rule for picto: 0=Use the generic preview picto, 1=Use the picto of mime type of file)

@@ -46,8 +46,17 @@ class Commande extends CommonOrder
     public $table_element_line = 'commandedet';
     public $class_element_line = 'OrderLine';
     public $fk_element = 'fk_commande';
-    public $ismultientitymanaged = 1;	// 0=No test on entity, 1=Test with field entity, 2=Test with link by societe
     public $picto = 'order';
+    /**
+     * 0=No test on entity, 1=Test with field entity, 2=Test with link by societe
+     * @var int
+     */
+    public $ismultientitymanaged = 1;
+    /**
+     * 0=Default, 1=View may be restricted to sales representative only if no permission to see all or to company of external user if external user
+     * @var integer
+     */
+    public $restrictiononfksoc = 1;
 
     /**
      * {@inheritdoc}
@@ -768,7 +777,7 @@ class Commande extends CommonOrder
         $sql.= ", multicurrency_code";
         $sql.= ", multicurrency_tx";
         $sql.= ")";
-        $sql.= " VALUES ('(PROV)',".$this->socid.", '".$this->db->idate($now)."', ".$user->id;
+        $sql.= " VALUES ('(PROV)', ".$this->socid.", '".$this->db->idate($now)."', ".$user->id;
         $sql.= ", ".($this->fk_project>0?$this->fk_project:"null");
         $sql.= ", '".$this->db->idate($date)."'";
         $sql.= ", ".($this->source>=0 && $this->source != '' ?$this->db->escape($this->source):'null');
@@ -924,7 +933,7 @@ class Commande extends CommonOrder
                 		    if ($originforcontact == 'shipping')     // shipment and order share the same contacts. If creating from shipment we take data of order
                 		    {
                 		        require_once DOL_DOCUMENT_ROOT . '/expedition/class/expedition.class.php';
-                		        $exp = new Expedition($db);
+                		        $exp = new Expedition($this->db);
                 		        $exp->fetch($this->origin_id);
                 		        $exp->fetchObjectLinked();
                 		        if (count($exp->linkedObjectsIds['commande']) > 0)
@@ -1030,8 +1039,8 @@ class Commande extends CommonOrder
                 $this->socid 				= $objsoc->id;
                 $this->cond_reglement_id	= (! empty($objsoc->cond_reglement_id) ? $objsoc->cond_reglement_id : 0);
                 $this->mode_reglement_id	= (! empty($objsoc->mode_reglement_id) ? $objsoc->mode_reglement_id : 0);
-                $this->fk_project			= '';
-                $this->fk_delivery_address	= '';
+                $this->fk_project			= 0;
+                $this->fk_delivery_address	= 0;
             }
 
             // TODO Change product price if multi-prices
@@ -1329,6 +1338,14 @@ class Commande extends CommonOrder
 
             $tabprice = calcul_price_total($qty, $pu, $remise_percent, $txtva, $txlocaltax1, $txlocaltax2, 0, $price_base_type, $info_bits, $product_type, $mysoc, $localtaxes_type, 100, $this->multicurrency_tx, $pu_ht_devise);
 
+            /*var_dump($txlocaltax1);
+            var_dump($txlocaltax2);
+            var_dump($localtaxes_type);
+            var_dump($tabprice);
+            var_dump($tabprice[9]);
+            var_dump($tabprice[10]);
+            exit;*/
+
             $total_ht  = $tabprice[0];
             $total_tva = $tabprice[1];
             $total_ttc = $tabprice[2];
@@ -1370,12 +1387,12 @@ class Commande extends CommonOrder
             $this->line->desc=$desc;
             $this->line->qty=$qty;
 
-			$this->line->vat_src_code=$vat_src_code;
+            $this->line->vat_src_code=$vat_src_code;
             $this->line->tva_tx=$txtva;
-            $this->line->localtax1_tx=$localtaxes_type[1];
-            $this->line->localtax2_tx=$localtaxes_type[3];
-			$this->line->localtax1_type=$localtaxes_type[0];
-			$this->line->localtax2_type=$localtaxes_type[2];
+            $this->line->localtax1_tx=($total_localtax1?$localtaxes_type[1]:0);
+            $this->line->localtax2_tx=($total_localtax2?$localtaxes_type[3]:0);
+            $this->line->localtax1_type=$localtaxes_type[0];
+            $this->line->localtax2_type=$localtaxes_type[2];
             $this->line->fk_product=$fk_product;
 			$this->line->product_type=$product_type;
             $this->line->fk_remise_except=$fk_remise_except;
@@ -1572,8 +1589,8 @@ class Commande extends CommonOrder
         $sql.= ', ca.code as availability_code, ca.label as availability_label';
         $sql.= ', dr.code as demand_reason_code';
         $sql.= ' FROM '.MAIN_DB_PREFIX.'commande as c';
-        $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_payment_term as cr ON c.fk_cond_reglement = cr.rowid AND cr.entity IN (' . getEntity('c_payment_term') . ')';
-        $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_paiement as p ON c.fk_mode_reglement = p.id AND p.entity IN (' . getEntity('c_paiement') . ')';
+        $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_payment_term as cr ON c.fk_cond_reglement = cr.rowid AND cr.entity IN ('.getEntity('c_payment_term').')';
+        $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_paiement as p ON c.fk_mode_reglement = p.id AND p.entity IN ('.getEntity('c_paiement').')';
         $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_availability as ca ON c.fk_availability = ca.rowid';
         $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_input_reason as dr ON c.fk_input_reason = ca.rowid';
 		$sql.= ' LEFT JOIN '.MAIN_DB_PREFIX.'c_incoterms as i ON c.fk_incoterms = i.rowid';
@@ -2065,7 +2082,6 @@ class Commande extends CommonOrder
      */
     function deleteline($user=null, $lineid=0)
     {
-
         if ($this->statut == self::STATUS_DRAFT)
         {
             $this->db->begin();
@@ -2128,7 +2144,8 @@ class Commande extends CommonOrder
         }
         else
         {
-            return -1;
+        	$this->error='ErrorDeleteLineNotAllowedByObjectStatus';
+        	return -1;
         }
     }
 
@@ -2845,7 +2862,6 @@ class Commande extends CommonOrder
             if (empty($txtva)) $txtva=0;
             if (empty($txlocaltax1)) $txlocaltax1=0;
             if (empty($txlocaltax2)) $txlocaltax2=0;
-            if (empty($remise)) $remise=0;
             if (empty($remise_percent)) $remise_percent=0;
             if (empty($special_code) || $special_code == 3) $special_code=0;
 
@@ -2862,7 +2878,7 @@ class Commande extends CommonOrder
             // TRES IMPORTANT: C'est au moment de l'insertion ligne qu'on doit stocker
             // la part ht, tva et ttc, et ce au niveau de la ligne qui a son propre taux tva.
 
-            $localtaxes_type=getLocalTaxesFromRate($txtva,0,$this->thirdparty, $mysoc);
+            $localtaxes_type=getLocalTaxesFromRate($txtva, 0, $this->thirdparty, $mysoc);
 
        		// Clean vat code
     		$vat_src_code='';
@@ -2889,7 +2905,7 @@ class Commande extends CommonOrder
             $multicurrency_total_ttc = $tabprice[18];
 			$pu_ht_devise = $tabprice[19];
 
-            // Anciens indicateurs: $price, $subprice, $remise (a ne plus utiliser)
+            // Anciens indicateurs: $price, $subprice (a ne plus utiliser)
             $price = $pu_ht;
 			if ($price_base_type == 'TTC')
 			{
@@ -3018,8 +3034,10 @@ class Commande extends CommonOrder
 	 *      @param      int		$notrigger	    0=launch triggers after, 1=disable triggers
 	 *      @return     int      			   	<0 if KO, >0 if OK
 	 */
-	function update($user=null, $notrigger=0)
+	function update(User $user, $notrigger=0)
 	{
+		global $conf;
+
 		$error=0;
 
 		// Clean parameters
@@ -3053,6 +3071,7 @@ class Commande extends CommonOrder
 		$sql.= " fk_projet=".(isset($this->fk_project)?$this->fk_project:"null").",";
 		$sql.= " fk_cond_reglement=".(isset($this->cond_reglement_id)?$this->cond_reglement_id:"null").",";
 		$sql.= " fk_mode_reglement=".(isset($this->mode_reglement_id)?$this->mode_reglement_id:"null").",";
+		$sql.= " fk_account=".($this->fk_account>0?$this->fk_account:"null").",";
 		$sql.= " note_private=".(isset($this->note_private)?"'".$this->db->escape($this->note_private)."'":"null").",";
 		$sql.= " note_public=".(isset($this->note_public)?"'".$this->db->escape($this->note_public)."'":"null").",";
 		$sql.= " model_pdf=".(isset($this->modelpdf)?"'".$this->db->escape($this->modelpdf)."'":"null").",";
@@ -3073,7 +3092,7 @@ class Commande extends CommonOrder
 			if (! $notrigger)
 			{
 	            // Call trigger
-	            $result=$this->call_trigger('ORDER_MODIFY',$user);
+	            $result=$this->call_trigger('ORDER_MODIFY', $user);
 	            if ($result < 0) $error++;
 	            // End call triggers
 			}
@@ -4114,7 +4133,7 @@ class OrderLine extends CommonOrderLine
 	 *	@param      int		$notrigger		1 = disable triggers
      *	@return		int		<0 si ko, >0 si ok
      */
-	function update($user=null, $notrigger=0)
+	function update(User $user, $notrigger=0)
 	{
 		global $conf,$langs;
 

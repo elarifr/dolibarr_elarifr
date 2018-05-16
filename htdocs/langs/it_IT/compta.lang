@@ -1,5 +1,5 @@
 # Dolibarr language file - Source file is en_US - compta
-MenuFinancial=Billing / Payment
+MenuFinancial=Cambiale/Pagamento
 TaxModuleSetupToModifyRules=Per modificare il modo in cui viene effettuato il calcolo, vai al <a href="%s">modulo di configurazione delle tasse</a>.
 TaxModuleSetupToModifyRulesLT=Vai a  <a href="%s">Impostazioni Azienda per modificare le regole del calcolo
 OptionMode=Opzione per la gestione contabile
@@ -24,6 +24,7 @@ PaymentsNotLinkedToInvoice=I pagamenti non legati ad una fattura, quindi non leg
 PaymentsNotLinkedToUser=Pagamenti non legati ad alcun utente
 Profit=Utile
 AccountingResult=Risultato contabile
+BalanceBefore=Balance (before)
 Balance=Saldo
 Debit=Debito
 Credit=Credito
@@ -79,6 +80,7 @@ AccountancyTreasuryArea=Area contabilità/tesoreria
 NewPayment=Nuovo pagamento
 Payments=Pagamenti
 PaymentCustomerInvoice=Pagamento fattura attiva
+PaymentSupplierInvoice=Pagamento fattura fornitori
 PaymentSocialContribution=Pagamento delle imposte sociali/fiscali
 PaymentVat=Pagamento IVA
 ListPayment=Elenco dei pagamenti

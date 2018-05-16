@@ -343,7 +343,7 @@ if ($step == 1 || ! $datatoimport)
 	dol_fiche_head($head, 'step1', $langs->trans("NewImport"), -1);
 
 
-	print $langs->trans("SelectImportDataSet").'<br>';
+	print '<div class="opacitymedium">'.$langs->trans("SelectImportDataSet").'</div><br>';
 
 	// Affiche les modules d'imports
 	print '<table class="noborder" width="100%">';
@@ -1478,7 +1478,7 @@ if ($step == 5 && $datatoimport)
             while ($sourcelinenb < $nboflines && ! $endoffile)
             {
                 $sourcelinenb++;
-                // Read line and stor it into $arrayrecord
+                // Read line and store it into $arrayrecord
                 $arrayrecord=$obj->import_read_record();
                 if ($arrayrecord === false)
                 {

@@ -36,8 +36,17 @@ class ActionComm extends CommonObject
     public $element='action';
     public $table_element = 'actioncomm';
     public $table_rowid = 'id';
-    public $ismultientitymanaged = 1;	// 0=No test on entity, 1=Test with field entity, 2=Test with link by societe
     public $picto='action';
+    /**
+     * 0=No test on entity, 1=Test with field entity, 2=Test with link by societe
+     * @var int
+     */
+    public $ismultientitymanaged = 1;
+    /**
+     * 0=Default, 1=View may be restricted to sales representative only if no permission to see all or to company of external user if external user, 2=Same than 1 but accept record if fksoc is empty
+     * @var integer
+     */
+    public $restrictiononfksoc = 2;
 
     /**
      * Id of the event
@@ -113,7 +122,12 @@ class ActionComm extends CommonObject
     var $userownerid;	// Id of user owner = fk_user_action into table
     var $userdoneid;	// Id of user done (deprecated)
 
-    /**
+    var $socpeopleassigned = array(); // Array of contact ids
+
+    var $otherassigned = array(); // Array of other contact emails (not user, not contact)
+
+
+	/**
      * Object user of owner
      * @var User
      * @deprecated
@@ -345,6 +359,26 @@ class ActionComm extends CommonObject
 				}
 			}
 
+			if (!$error)
+			{
+				if (!empty($this->socpeopleassigned))
+				{
+					foreach ($this->socpeopleassigned as $id => $Tab)
+					{
+						$sql ="INSERT INTO ".MAIN_DB_PREFIX."actioncomm_resources(fk_actioncomm, element_type, fk_element, mandatory, transparency, answer_status)";
+						$sql.=" VALUES(".$this->id.", 'socpeople', ".$id.", 0, 0, 0)";
+
+						$resql = $this->db->query($sql);
+						if (! $resql)
+						{
+							$error++;
+							$this->errors[]=$this->db->lasterror();
+						}
+
+					}
+				}
+			}
+
             if (! $error)
             {
             	$action='create';
@@ -432,7 +466,8 @@ class ActionComm extends CommonObject
 		$objFrom = clone $this;
 
 		$this->fetch_optionals();
-		$this->fetch_userassigned();
+//		$this->fetch_userassigned();
+		$this->fetchResources();
 
         $this->id=0;
 
@@ -545,8 +580,9 @@ class ActionComm extends CommonObject
                 $this->type_color = $obj->type_color;
                 $this->type_picto = $obj->type_picto;
                 $transcode=$langs->trans("Action".$obj->type_code);
-                $type_label=($transcode!="Action".$obj->type_code?$transcode:$obj->type_label);
-                $this->type       = $type_label;
+                $this->type       = (($transcode!="Action".$obj->type_code) ? $transcode : $obj->type_label);
+                $transcode=$langs->trans("Action".$obj->type_code.'Short');
+                $this->type_short       = (($transcode!="Action".$obj->type_code.'Short') ? $transcode : '');
 
 				$this->code					= $obj->code;
                 $this->label				= $obj->label;
@@ -563,11 +599,11 @@ class ActionComm extends CommonObject
                 $this->authorid             = $obj->fk_user_author;
                 $this->usermodid			= $obj->fk_user_mod;
 
-                if (!is_object($this->author)) $this->author = new stdClass(); // For avoid warning
+                if (!is_object($this->author)) $this->author = new stdClass(); // To avoid warning
                 $this->author->id			= $obj->fk_user_author;		// deprecated
                 $this->author->firstname	= $obj->firstname;			// deprecated
                 $this->author->lastname		= $obj->lastname;			// deprecated
-                if (!is_object($this->usermod)) $this->usermod = new stdClass(); // For avoid warning
+                if (!is_object($this->usermod)) $this->usermod = new stdClass(); // To avoid warning
                 $this->usermod->id			= $obj->fk_user_mod;		// deprecated
 
                 $this->userownerid			= $obj->fk_user_action;
@@ -587,6 +623,8 @@ class ActionComm extends CommonObject
 
                 $this->fk_element			= $obj->fk_element;
                 $this->elementtype			= $obj->elementtype;
+
+                $this->fetchResources();
             }
             $this->db->free($resql);
         }
@@ -600,6 +638,50 @@ class ActionComm extends CommonObject
 
     }
 
+	/**
+     *    Initialize $this->userassigned & this->socpeopleassigned array with list of id of user and contact assigned to event
+     *
+     *    @return	int				<0 if KO, >0 if OK
+     */
+	function fetchResources()
+	{
+		$sql ='SELECT fk_actioncomm, element_type, fk_element, answer_status, mandatory, transparency';
+		$sql.=' FROM '.MAIN_DB_PREFIX.'actioncomm_resources';
+		$sql.=' WHERE fk_actioncomm = '.$this->id;
+		$sql.=" AND element_type IN ('user', 'socpeople')";
+		$resql=$this->db->query($sql);
+		if ($resql)
+		{
+			$this->userassigned=array();
+			$this->socpeopleassigned=array();
+
+			// If owner is known, we must but id first into list
+			if ($this->userownerid > 0) $this->userassigned[$this->userownerid]=array('id'=>$this->userownerid);	// Set first so will be first into list.
+
+            while ($obj = $this->db->fetch_object($resql))
+            {
+            	if ($obj->fk_element > 0)
+				{
+					switch ($obj->element_type) {
+						case 'user':
+							$this->userassigned[$obj->fk_element]=array('id'=>$obj->fk_element, 'mandatory'=>$obj->mandatory, 'answer_status'=>$obj->answer_status, 'transparency'=>$obj->transparency);
+							if (empty($this->userownerid)) $this->userownerid=$obj->fk_element;	// If not defined (should not happened, we fix this)
+							break;
+						case 'socpeople':
+							$this->socpeopleassigned[$obj->fk_element]=array('id'=>$obj->fk_element, 'mandatory'=>$obj->mandatory, 'answer_status'=>$obj->answer_status, 'transparency'=>$obj->transparency);
+							break;
+					}
+				}
+            }
+
+        	return 1;
+		}
+		else
+		{
+			dol_print_error($this->db);
+			return -1;
+		}
+	}
 
     /**
      *    Initialize this->userassigned array with list of id of user assigned to event
@@ -819,6 +901,29 @@ class ActionComm extends CommonObject
 		           		$this->errors[]=$this->db->lasterror();
 					}
 					//var_dump($sql);exit;
+				}
+			}
+
+			if (!$error)
+			{
+				$sql ="DELETE FROM ".MAIN_DB_PREFIX."actioncomm_resources where fk_actioncomm = ".$this->id." AND element_type = 'socpeople'";
+				$resql = $this->db->query($sql);
+
+				if (!empty($this->socpeopleassigned))
+				{
+					foreach (array_keys($this->socpeopleassigned) as $id)
+					{
+						$sql ="INSERT INTO ".MAIN_DB_PREFIX."actioncomm_resources(fk_actioncomm, element_type, fk_element, mandatory, transparency, answer_status)";
+						$sql.=" VALUES(".$this->id.", 'socpeople', ".$id.", 0, 0, 0)";
+
+						$resql = $this->db->query($sql);
+						if (! $resql)
+						{
+							$error++;
+							$this->errors[]=$this->db->lasterror();
+						}
+
+					}
 				}
 			}
 
@@ -1119,7 +1224,7 @@ class ActionComm extends CommonObject
      */
     function getNomUrl($withpicto=0,$maxlength=0,$classname='',$option='',$overwritepicto=0, $notooltip=0)
     {
-		global $conf, $langs, $user, $hookmanager;
+		global $conf, $langs, $user, $hookmanager, $action;
 
 		if (! empty($conf->dol_no_mouse_hover)) $notooltip=1;   // Force disable tooltips
 
@@ -1135,7 +1240,7 @@ class ActionComm extends CommonObject
 		    if ($this->type_code != 'AC_OTH_AUTO') $labeltype = $langs->trans('ActionAC_MANUAL');
 		}
 
-		$tooltip = '<u>' . $langs->trans('ShowAction'.$objp->code) . '</u>';
+		$tooltip = '<u>' . $langs->trans('ShowAction') . '</u>';
 		if (! empty($this->ref))
 			$tooltip .= '<br><b>' . $langs->trans('Ref') . ':</b> ' . $this->ref;
 		if (! empty($label))
@@ -1528,6 +1633,7 @@ class ActionComm extends CommonObject
 
     	if (empty($conf->global->AGENDA_REMINDER_EMAIL))
     	{
+    		$langs->load("agenda");
     		$this->output = $langs->trans('EventRemindersByEmailNotEnabled', $langs->transnoentitiesnoconv("Agenda"));
     		return 0;
     	}

@@ -5,8 +5,10 @@ ACCOUNTING_EXPORT_PIECE=تصدير عدد القطعة
 ACCOUNTING_EXPORT_GLOBAL_ACCOUNT=تصدير مع الحساب العام
 ACCOUNTING_EXPORT_LABEL=تصدير التسمية
 ACCOUNTING_EXPORT_AMOUNT=تصدير الكمية
-ACCOUNTING_EXPORT_DEVISE=Export currency
+ACCOUNTING_EXPORT_DEVISE=تصدير العملة
 Selectformat=حدد تنسيق للملف
+ACCOUNTING_EXPORT_FORMAT=حدد تنسيق للملف
+ACCOUNTING_EXPORT_ENDLINE=Select the carriage return type
 ACCOUNTING_EXPORT_PREFIX_SPEC=تحديد بادئة لاسم الملف
 ThisService=هذه الخدمة
 ThisProduct=This product
@@ -34,6 +36,7 @@ NotYetInGeneralLedger=Not yet journalized in ledgers
 GroupIsEmptyCheckSetup=Group is empty, check setup of the personalized accounting group
 DetailByAccount=Show detail by account
 AccountWithNonZeroValues=Accounts with non zero values
+ListOfAccounts=List of accounts
 
 MainAccountForCustomersNotDefined=Main accounting account for customers not defined in setup
 MainAccountForSuppliersNotDefined=Main accounting account for suppliers not defined in setup
@@ -67,7 +70,6 @@ AccountancyAreaDescAnalyze=STEP %s: Add or edit existing transactions and genera
 AccountancyAreaDescClosePeriod=STEP %s: Close period so we can't make modification in a future.
 
 TheJournalCodeIsNotDefinedOnSomeBankAccount=A mandatory step in setup was not complete (accounting code journal not defined for all bank accounts)
-MenuAccountancy=المحاسبة
 Selectchartofaccounts=Select active chart of accounts
 ChangeAndLoad=Change and load
 Addanaccount=إضافة حساب محاسبي
@@ -108,7 +110,7 @@ IntoAccount=Bind line with the accounting account
 Ventilate=Bind
 LineId=Id line
 Processing=معالجة
-EndProcessing=Process terminated.
+EndProcessing=انتهت العملية
 SelectedLines=الخطوط المحددة
 Lineofinvoice=خط الفاتورة
 LineOfExpenseReport=Line of expense report
@@ -156,7 +158,7 @@ NumPiece=Piece number
 TransactionNumShort=Num. transaction
 AccountingCategory=Personalized groups
 GroupByAccountAccounting=Group by accounting account
-AccountingAccountGroupsDesc=You can define here some groups of accounting account. It will be used in the report <b>%s</b> to show your income/expense with data grouped according to these groups.
+AccountingAccountGroupsDesc=You can define here some groups of accounting account. They will be used for personalized accounting reports.
 ByAccounts=By accounts
 ByPredefinedAccountGroups=By predefined groups
 ByPersonalizedAccountGroups=By personalized groups
@@ -166,7 +168,7 @@ DeleteMvt=Delete Ledger lines
 DelYear=Year to delete
 DelJournal=Journal to delete
 ConfirmDeleteMvt=This will delete all lines of the Ledger for year and/or from a specific journal. At least one criteria is required.
-ConfirmDeleteMvtPartial=This will delete the selected line(s) of the Ledger
+ConfirmDeleteMvtPartial=This will delete the transaction from the Ledger (all lines related to same transaction will be deleted)
 DelBookKeeping=Delete record of the Ledger
 FinanceJournal=دفتر المالية اليومي
 ExpenseReportsJournal=Expense reports journal
@@ -189,6 +191,7 @@ DescThirdPartyReport=Consult here the list of the third party customers and supp
 ListAccounts=قائمة الحسابات المحاسبية
 UnknownAccountForThirdparty=Unknown third party account. We will use %s
 UnknownAccountForThirdpartyBlocking=Unknown third party account. Blocking error
+UnknownAccountForThirdpartyAndWaitingAccountNotDefinedBlocking=Unknown third party account and waiting account not defined. Blocking error
 
 Pcgtype=Group of account
 Pcgsubtype=Subgroup of account
@@ -218,7 +221,7 @@ MvtNotCorrectlyBalanced=Movement not correctly balanced. Credit = %s. Debit = %s
 FicheVentilation=Binding card
 GeneralLedgerIsWritten=Transactions are written in the Ledger
 GeneralLedgerSomeRecordWasNotRecorded=Some of the transactions could not be dispatched. If there is no other error message, this is probably because they were already dispatched.
-NoNewRecordSaved=No new record dispatched
+NoNewRecordSaved=No more record to journalize
 ListOfProductsWithoutAccountingAccount=List of products not bound to any accounting account
 ChangeBinding=Change the binding
 
@@ -242,7 +245,6 @@ ErrorAccountingJournalIsAlreadyUse=This journal is already use
 ## Export
 ExportDraftJournal=Export draft journal
 Modelcsv=نموذج التصدير
-OptionsDeactivatedForThisExportModel=تم الغاء الخيارات لنموذج التصدير هذا
 Selectmodelcsv=تحديد نموذج للتصدير
 Modelcsv_normal=تصدير كلاسيكي
 Modelcsv_CEGID=Export towards CEGID Expert Comptabilité
@@ -252,14 +254,15 @@ Modelcsv_ciel=Export towards Sage Ciel Compta or Compta Evolution
 Modelcsv_quadratus=Export towards Quadratus QuadraCompta
 Modelcsv_ebp=Export towards EBP
 Modelcsv_cogilog=Export towards Cogilog
-Modelcsv_agiris=Export towards Agiris (Test)
+Modelcsv_agiris=Export towards Agiris
+Modelcsv_configurable=Export Configurable
 ChartofaccountsId=Chart of accounts Id
 
 ## Tools - Init accounting account on product / service
 InitAccountancy=Init accountancy
 InitAccountancyDesc=This page can be used to initialize an accounting account on products and services that does not have accounting account defined for sales and purchases.
 DefaultBindingDesc=This page can be used to set a default account to use to link transactions record about payment salaries, donation, taxes and vat when no specific accounting account were already set.
-Options=Options
+Options=الخيارات
 OptionModeProductSell=Mode sales
 OptionModeProductBuy=Mode purchases
 OptionModeProductSellDesc=Show all products with accounting account for sales.
@@ -274,7 +277,7 @@ ValueNotIntoChartOfAccount=This value of accounting account does not exist into 
 ## Dictionary
 Range=Range of accounting account
 Calculated=Calculated
-Formula=Formula
+Formula=معادلة
 
 ## Error
 SomeMandatoryStepsOfSetupWereNotDone=Some mandatory steps of setup was not done, please complete them
